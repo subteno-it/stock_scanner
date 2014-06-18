@@ -131,10 +131,13 @@ class Sentinel(object):
         self.scenario_name = False
         try:
             ssh_data = os.environ['SSH_CONNECTION'].split(' ')
-            self.hardware_code = ssh_data[0]
-            self.scanner_check()
+            if ssh_data:
+                self.hardware_code = ssh_data[0]
+                self.scanner_check()
         except:
-            self.hardware_code = self._input_text(_('Autoconfiguration failed !\nPlease enter terminal code'))
+            self.hardware_code = os.environ['HARDWARE_CODE']
+            if not self.hardware_code:
+                self.hardware_code = self._input_text(_('Autoconfiguration failed !\nPlease enter terminal code'))
             self.scanner_check()
 
         # Resize window to terminal screen size
