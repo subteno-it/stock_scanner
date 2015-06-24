@@ -361,6 +361,7 @@ class scanner_hardware(osv.Model):
 
         # Change uid if defined on the stock scanner
         uid = terminal.user_id and terminal.user_id.id or uid
+        context.update(self.pool.get('res.users').context_get(cr, uid))
 
         # Retrieve the terminal screen size
         if action == 'screen_size':
