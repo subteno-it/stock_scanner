@@ -69,7 +69,15 @@ class Sentinel(object):
         """
         # Read user configuration
         config = ConfigParser.SafeConfigParser(DEFAULT_CONFIG)
-        config.read(['.oerp_sentinelrc', '.openerp_sentinelrc'])
+        datadir = os.path.expanduser("~/")
+        config.read([
+            '.oerp_sentinelrc',
+            '.openerp_sentinelrc',
+            '.odoo_sentinelrc',
+            datadir + '.oerp_sentinelrc',
+            datadir + '.openerp_sentinelrc',
+            datadir + '.odoo_sentinelrc',
+        ])
 
         # No configfile found, exit
         if 'openerp' not in config.sections():
@@ -490,7 +498,7 @@ class Sentinel(object):
                                 sys.exc_info()[2])))
 
                     # Writes traceback in log file
-                    logfile = open('oerp_sentinel.log', 'a')
+                    logfile = open(self.datadir + 'oerp_sentinel.log', 'a')
                     logfile.write(log_contents)
                     logfile.close()
 
