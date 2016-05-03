@@ -19,6 +19,10 @@ Installation
 
 
 The "sentinel.py" specific ncurses client is available in the "hardware" directory.
+This application is a separate client, and can be run on any device.
+
+For mobile devices, like Windows Mobile or Android smart barcode scanners, we usually install it on a server, accessed though SSH.
+
 If you plan to use the specific "sentinel.py", you will need the "openobject-library" Python module, available from pip:
 
     $ sudo pip install "openobject-library<2"
@@ -28,7 +32,7 @@ If you plan to use the specific "sentinel.py", you will need the "openobject-lib
    You must use openobject-library earlier than 2.0 with Odoo.
    The version 2.0 of openobject-library only implements the Net-RPC protocol, which was removed from v7.
 
-To test the module, some demo scenarii are available in the `demo` directory of the module.
+To test the module, some modules provide scenarii.
 
 Configuration
 =============
@@ -71,7 +75,8 @@ settings. "Settings > Warehouse"
 For the sentinel.py client
 --------------------------
 
-The sentinel.py client uses a config file named `.oerpsentinelrc`, using the standard `ini` format.
+The sentinel.py client uses a config file in the standard `ini` format.
+This file can be named `.oerp_sentinelrc`, `.openerp_sentinelrc` or `.odoo_sentinelrc`, and can be located in the current working directory, or in the user's home directory.
 
 This file simply contains information for server connection (hostname, port, username, password and database).
 
