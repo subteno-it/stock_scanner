@@ -69,14 +69,14 @@ class Sentinel(object):
         """
         # Read user configuration
         config = ConfigParser.SafeConfigParser(DEFAULT_CONFIG)
-        datadir = os.path.expanduser("~/")
+        self.datadir = os.path.expanduser("~/")
         config.read([
             '.oerp_sentinelrc',
             '.openerp_sentinelrc',
             '.odoo_sentinelrc',
-            datadir + '.oerp_sentinelrc',
-            datadir + '.openerp_sentinelrc',
-            datadir + '.odoo_sentinelrc',
+            self.datadir + '.oerp_sentinelrc',
+            self.datadir + '.openerp_sentinelrc',
+            self.datadir + '.odoo_sentinelrc',
         ])
 
         # No configfile found, exit
