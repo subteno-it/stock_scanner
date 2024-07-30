@@ -8,7 +8,7 @@ Stock Scanner : WorkFlow engine for scanner hardware
 
 This module allows managing barcode readers with simple scenarios:
 
-- You can define a workfow for each object (stock picking, inventory, sale, etc)
+- You can define a workflow for each object (stock picking, inventory, sale, etc)
 - Works with all scanner hardware model (just SSH client required)
 
 Some demo/tutorial scenarios are available in the "demo" directory of the module.
@@ -18,21 +18,15 @@ Installation
 ============
 
 
-The "sentinel.py" specific ncurses client is available in the "hardware" directory.
+The `odoo-sentinel` specific client can be installed from pip:
+
+    $ pip install odoo-sentinel
+
 This application is a separate client, and can be run on any device.
 
-For mobile devices, like Windows Mobile or Android smart barcode scanners, we usually install it on a server, accessed though SSH.
+For mobile devices, like Windows Mobile or Android smart barcode scanners, we usually install it on a server, accessed through SSH.
 
-If you plan to use the specific "sentinel.py", you will need the "openobject-library" Python module, available from pip:
-
-    $ sudo pip install "openobject-library<2"
-
-.. note::
-
-   You must use openobject-library earlier than 2.0 with Odoo.
-   The version 2.0 of openobject-library only implements the Net-RPC protocol, which was removed from v7.
-
-To test the module, some modules provide scenarii.
+To test the module, some modules provide scenario.
 
 Configuration
 =============
@@ -45,47 +39,57 @@ Declare hardware
 
 You have to declare some hardware scanners in Odoo.
 
-Go to "Warehouse > Configuration > Scanner Hardware" and create a new record.
+Go to "Inventory > Configuration > Scanner Configuration > Scanner Hardware" and create a new record.
 
-The "step type code" sent by the "sentinel.py" client at start-up is the IP address of the hardware, if connected through SSH.
+The "step type code" sent by the "odoo-sentinel" client at start-up is the IP address of the hardware, if connected through SSH.
 
 If needed enable Login/Logout
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The module come with 2 predifined scenarii for Login and Logout. The functionality is disabled by default and the user to use in
-Odoo must be specified in the .oerp_sentinelrc file used by sentinel and can be overriden on the Scanner Hardware definition
-in Odoo. 
+The module comes with 2 predefined scenarii for Login and Logout. The functionality is disabled by default and the user to use in
+Odoo must be specified in the `.odoorpcrc` file used by odoo-sentinel and can be overriden on the Scanner Hardware definition
+in Odoo.
 
-If the Login/logout functionality is enabled, when a user start a session with sentinel, only the Login scenario is displayed on the
-screen. The scenario will prompt the user for its login and pwd. If the authentication succeed, each interaction with Odoo will be done
+If the Login/logout functionality is enabled, when a user starts a session with odoo-sentinel, only the Login scenario is displayed on the
+screen. The scenario will prompt the user for its login and pwd. If the authentication succeeds, each interaction with Odoo will be done
 using the uid of the connected user. Once connected, a Logout scenario is displayed in the list of available scenarii and the Login
-scenario no more appear. 
+scenario no longer appears.
 
-The Login/logout functionality enable you to specify on the scenario a list of users and/or a list of groups with access to the scenario.
+The Login/logout functionality enables you to specify on the scenario a list of users and/or a list of groups with access to the scenario.
 
 To enable the Login/logout functionality:
     * Go to "Settings > Warehouse" and check the checkbox Login/logout scenarii enabled.
     * Create a *Technical User* 'sentinel' **without roles in Human Resources** and with 'Sentinel: technical users' checked.
-    * Use this user to launch your sentinel session.
+    * Use this user to launch your odoo-sentinel session.
 
 Be careful, the role *Sentinel: technical users* is a technical role and should only be used by sentinel.
 
-The timeout of sessions is managed by a dedicated cron that reset the inactive sessions. The timeout can be configured on 
+The timeout of sessions is managed by a dedicated cron that resets the inactive sessions. The timeout can be configured on
 settings. "Settings > Warehouse"
 
-For the sentinel.py client
---------------------------
+For the odoo-sentinel client
+----------------------------
 
-The sentinel.py client uses a config file in the standard `ini` format.
-This file can be named `.oerp_sentinelrc`, `.openerp_sentinelrc` or `.odoo_sentinelrc`, and can be located in the current working directory, or in the user's home directory.
+The odoo-sentinel client uses an OdooRPC profile to connect to Odoo.
+The default configuration file is `~/.odoorpcrc`, but this can be customized, using the `-c`/`--config` argument.
+See the `hardware/odoorpcrc.sample` file for an example.
 
-This file simply contains information for server connection (hostname, port, username, password and database).
+If the `-p`/`--profile` argument is not given on the command line, a profile named `sentinel` will be used.
 
-    [openerp]
-    host = localhost
-    password = admin
-    database = demo
+The file used to log errors can be defined by using the `-l`/`--log-file` argument, which defaults to `~/sentinel.log`.
 
-Writing scenarii
+**Note** : If you want to copy the application outside this git repository, you will need to copy the i18n folder too.
+
+Autoconfiguration feature
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The `odoo-sentinel` client has an autoconfiguration feature, used to automatically recognize the hardware being connected.
+During initialization, the `odoo-sentinel` client tries to detect an SSH connection, and sends the terminal's IP address as terminal code.
+If the IP address is found on the `code` field on a configured hardware in the database, this hardware configuration will automatically be used.
+If the IP address is not found, the client will ask the user to type (or scan) a code.
+
+This can be used only if the Odoo server and the connected hardware are on the same network.
+
+Writing scenario
 ----------------
 
 Creation
@@ -101,7 +105,6 @@ In the python code of each step, some variables are available :
     - pool : Pooler to the database
     - env : Environment used to execute the scenario (new API)
     - model : Pooler on the model configured on the scenario
-    - custom : Pooler on the custom values model
     - term : Recordset on the current scenario
     - context : Context used on the step
     - m or message : Last message sent by the hardware
@@ -145,7 +148,7 @@ Import
 ^^^^^^
 
 Scenarios are automatically imported on a module update, like any other data.
-You just have to add the path to your `Scenario_Name.scenario` files in the `data` or `demo` sections in the `__openerp__.py` file.
+You just have to add the path to your `Scenario_Name.scenario` files in the `data` or `demo` sections in the `__manifest__.py` file.
 
 Export
 ^^^^^^
@@ -160,9 +163,9 @@ Using a test file
 ^^^^^^^^^^^^^^^^^
 
 When developing scenarios, you will often have the same steps to run.
-The sentinel.py client allows you to supply a file, which contains the keys pressed during the scenario.
+The odoo-sentinel client allows you to supply a file, which contains the keys pressed during the scenario.
 
-You can define the file to use in the configuration file, on the "test_file" key.
+You can define the file to use in the `-t`/`--test-file` argument.
 This file will be read instead of calling the curses methods when the scenario is waiting for a user input (including line feed characters).
 When the file has been fully read, the client exits.
 
@@ -191,7 +194,7 @@ Unlike the standard Odoo Workflow, each step needs to find a valid transition, b
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
-   :target: https://runbot.odoo-community.org/runbot/154/8.0
+   :target: https://runbot.odoo-community.org/runbot/154/13.0
 
 A client for the Datalogic PowerScan scanners was developped for a very early version or this module.
 The files have been removed, but are still available in the `git repository history
@@ -222,8 +225,9 @@ Contributors
 * Laetitia Gangloff <laetitia.gangloff@acsone.eu>
 * Laurent Mignon <laurent.mignon@acsone.eu>
 * Olivier Dony <odo@openerp.com>
-* Sebastien LANGE <sebastien.lange@syleam.fr>
-* Sylvain Garancher <sylvain.garancher@syleam.fr>
+* Sebastien LANGE <sebastien.lange@subteno-it.com>
+* Sylvain Garancher
+* Florent de Labarre
 
 Maintainer
 ----------

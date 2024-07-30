@@ -1,44 +1,41 @@
-# -*- coding: utf-8 -*-
 # © 2011 Sylvain Garancher <sylvain.garancher@syleam.fr>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
+import datetime
 import logging
 import random
 import time
-import datetime
 
 from psycopg2 import OperationalError, errorcodes
 
-from openerp import models, api, fields, exceptions
-from openerp import workflow
-from openerp import _
-from openerp.tools.misc import ustr
-from openerp.tools.safe_eval import safe_eval
+from odoo import _, api, exceptions, fields, models
+from odoo.tools.misc import html_escape, ustr
+from odoo.tools.safe_eval import safe_eval
 
-
-logger = logging.getLogger('stock_scanner')
+_logger = logging.getLogger("stock_scanner")
 
 _CURSES_COLORS = [
-    ('black', _('Black')),
-    ('blue', _('Blue')),
-    ('cyan', _('Cyan')),
-    ('green', _('Green')),
-    ('magenta', _('Magenta')),
-    ('red', _('Red')),
-    ('white', _('White')),
-    ('yellow', _('Yellow')),
+    ("black", _("Black")),
+    ("blue", _("Blue")),
+    ("cyan", _("Cyan")),
+    ("green", _("Green")),
+    ("magenta", _("Magenta")),
+    ("red", _("Red")),
+    ("white", _("White")),
+    ("yellow", _("Yellow")),
 ]
 
 PG_CONCURRENCY_ERRORS_TO_RETRY = (
     errorcodes.LOCK_NOT_AVAILABLE,
     errorcodes.SERIALIZATION_FAILURE,
-    errorcodes.DEADLOCK_DETECTED)
+    errorcodes.DEADLOCK_DETECTED,
+)
 MAX_TRIES_ON_CONCURRENCY_FAILURE = 5
 
 
 class ScannerHardware(models.Model):
-    _name = 'scanner.hardware'
-    _description = 'Scanner Hardware'
+    _name = "scanner.hardware"
+    _description = "Scanner Hardware"
 
     @api.model
     def _colors_get(self):
@@ -48,144 +45,143 @@ class ScannerHardware(models.Model):
     # COLUMNS
     # ===========================================================================
     name = fields.Char(
-        string='Name',
+        string="Name",
         required=True,
-        help='Name of the hardware.')
+        help="The name of the hardware.")
+    active = fields.Boolean(
+        string="Active",
+        default=True)
     code = fields.Char(
-        string='Code',
+        string="Code",
         required=True,
-        help='Code of this hardware.')
+        help="The code of this hardware.")
     log_enabled = fields.Boolean(
-        string='Log enabled',
+        string="Log enabled",
         default=False,
-        help='Enable logging messages from scenarios.')
+        help="Enable logging messages from scenarios.")
     screen_width = fields.Integer(
-        string='Screen Width',
+        string="Screen Width",
         default=20,
         required=False,
-        help='Width of the terminal\'s screen.')
+        help="Width of the terminal's screen.")
     screen_height = fields.Integer(
-        string='Screen Height',
+        string="Screen Height",
         default=4,
-        required=False,
-        help='Height of the terminal\'s screen.')
+        help="Height of the terminal's screen.")
     warehouse_id = fields.Many2one(
-        comodel_name='stock.warehouse',
-        string='Warehouse',
+        string="Warehouse",
+        comodel_name="stock.warehouse",
         required=True,
-        ondelete='restrict',
-        help='Warehouse where is located this hardware.')
+        ondelete="restrict",
+        help="Warehouse where is located this hardware.")
     user_id = fields.Many2one(
-        comodel_name='res.users',
-        string='User',
-        required=False,
-        ondelete='restrict',
-        help='Allow to define an other user for execute all scenarios with '
-             'that scanner instead of default user.')
+        string="User",
+        comodel_name="res.users",
+        ondelete="restrict",
+        help="Allow to define an other user for execute all scenarios with "
+        "that scanner instead of default user.")
     last_call_dt = fields.Datetime(
-        string='Last call',
-        help='Date and time of the last call to the system done by the '
-        'scanner.'
-    )
+        string="Last call",
+        help="Date and time of the last call to the system done by the scanner.")
     scenario_id = fields.Many2one(
-        comodel_name='scanner.scenario',
-        string='Scenario',
-        required=False,
+        string="Scenario",
+        comodel_name="scanner.scenario",
         readonly=True,
-        default=False,
-        ondelete='restrict',
-        help='Scenario used for this hardware.')
+        ondelete="restrict",
+        help="Scenario used for this hardware.")
     step_id = fields.Many2one(
-        comodel_name='scanner.scenario.step',
-        string='Current Step',
-        required=False,
+        string="Current Step",
+        comodel_name="scanner.scenario.step",
         readonly=True,
-        default=False,
-        ondelete='restrict',
-        help='Current step for this hardware.')
+        ondelete="restrict",
+        help="Current step for this hardware.")
     step_history_ids = fields.One2many(
-        comodel_name='scanner.hardware.step.history',
-        inverse_name='hardware_id', string='Steps History',
+        comodel_name="scanner.hardware.step.history",
+        inverse_name="hardware_id",
+        string="Steps History",
         readonly=True,
-        help='History of all steps executed by this hardware'
-        ' during the current scenario.')
+        help="History of all steps executed by this hardware during the current scenario.")
     reference_document = fields.Integer(
-        string='Reference',
-        default=0,
-        required=False,
+        string="Reference",
         readonly=True,
-        help='ID of the reference document.')
-    tmp_val1 = fields.Char(
-        string='Temp value 1',
-        readonly=True,
-        help='Temporary value.')
-    tmp_val2 = fields.Char(
-        string='Temp value 2',
-        readonly=True,
-        help='Temporary value.')
-    tmp_val3 = fields.Char(
-        string='Temp value 3',
-        readonly=True,
-        help='Temporary value.')
-    tmp_val4 = fields.Char(
-        string='Temp value 4',
-        readonly=True,
-        help='Temporary value.')
-    tmp_val5 = fields.Char(
-        string='Temp value 5',
-        readonly=True,
-        help='Temporary value.')
+        help="ID of the reference document.")
     base_fg_color = fields.Selection(
-        selection='_colors_get',
-        string='Base - Text Color',
+        string="Base - Text Color",
+        selection="_colors_get",
         required=True,
-        default='white',
-        help='Default color for the text.')
+        default="white",
+        help="Default color for the text.")
     base_bg_color = fields.Selection(
-        selection='_colors_get',
-        string='Base - Background Color',
+        selection="_colors_get",
+        string="Base - Background Color",
         required=True,
-        default='blue',
-        help='Default color for the background.')
+        default="blue",
+        help="Default color for the background.")
     info_fg_color = fields.Selection(
-        selection='_colors_get',
-        string='Info - Text Color',
+        string="Info - Text Color",
+        selection="_colors_get",
         required=True,
-        default='yellow',
-        help='Color for the info text.')
+        default="yellow",
+        help="Color for the info text.")
     info_bg_color = fields.Selection(
-        selection='_colors_get',
-        string='Info - Background Color',
+        string="Info - Background Color",
+        selection="_colors_get",
         required=True,
-        default='blue',
-        help='Color for the info background.')
+        default="blue",
+        help="Color for the info background.")
     error_fg_color = fields.Selection(
-        selection='_colors_get',
-        string='Error - Text Color',
+        string="Error - Text Color",
+        selection="_colors_get",
         required=True,
-        default='yellow',
-        help='Color for the error text.')
+        default="yellow",
+        help="Color for the error text.")
     error_bg_color = fields.Selection(
-        selection='_colors_get',
-        string='Error - Background Color',
+        selection="_colors_get",
+        string="Error - Background Color",
         required=True,
-        default='red',
-        help='Color for the error background.')
+        default="red",
+        help="Color for the error background.",
+    )
+    tmp_values = fields.Serialized(readonly=True)
+    tmp_values_display = fields.Html(
+        compute="_compute_tmp_values_display",
+        help="Debug tmp values",
+    )
+
+    @api.depends("tmp_values")
+    def _compute_tmp_values_display(self):
+        for rec in self:
+            txt = [
+                "<table><tr>",
+                "<th>" + html_escape(_("Key")) + "</th>",
+                "<th>" + html_escape(_("Value")) + "</th></tr>",
+                ]
+            for key in sorted(rec.tmp_values.keys()):
+                val = rec.tmp_values[key]
+                txt.append(
+                    "<tr><td>%s</td><td>%s</td></tr>"
+                    % (html_escape(key), html_escape(val))
+                )
+            txt.append("</table>")
+            rec.tmp_values_display = "".join(txt)
 
     @api.model
     def timeout_session(self):
-        timeout_delay = self.env['ir.config_parameter'].get_param(
-            'hardware_scanner_session_timeout', 1800)  # seconds
+        timeout_delay = self.env["ir.config_parameter"].get_param(
+            "hardware_scanner_session_timeout", 1800
+        )  # seconds
         expired_dt = datetime.datetime.now() - datetime.timedelta(
-            seconds=int(timeout_delay))
+            seconds=int(timeout_delay)
+        )
         expired_str = fields.Datetime.to_string(expired_dt)
-        terminals = self.search([('last_call_dt', '<', expired_str)])
-        terminals.logout()
-        terminals.empty_scanner_values()
+        terminals = self.search([("last_call_dt", "<", expired_str)])
+        if terminals:
+            terminals.logout()
+            terminals.empty_scanner_values()
 
     @api.model
     def _get_terminal(self, terminal_number):
-        terminal = self.search([('code', '=', terminal_number)])
+        terminal = self.search([("code", "=", terminal_number)])
         terminal.ensure_one()
         return terminal
 
@@ -193,14 +189,17 @@ class ScannerHardware(models.Model):
     def scanner_check(self, terminal_number):
         terminal = self._get_terminal(terminal_number)
         uid = terminal.user_id.id or self.env.uid
-        terminal = terminal.sudo(uid)
-        return terminal.scenario_id and (
-            terminal.scenario_id.id,
-            terminal.scenario_id.name) or False
+        terminal = terminal.with_user(uid)
+        return (
+            terminal.scenario_id
+            and (terminal.scenario_id.id, terminal.scenario_id.name)
+            or False
+        )
 
     @api.model
-    def scanner_call(self, terminal_number, action, message=False,
-                     transition_type='keyboard'):
+    def scanner_call(
+        self, terminal_number, action, message=False, transition_type="keyboard"
+    ):
         """
         This method is called by the barcode reader,
         """
@@ -211,35 +210,31 @@ class ScannerHardware(models.Model):
             terminal.last_call_dt = fields.Datetime.now()
         # Change uid if defined on the stock scanner
         uid = terminal.user_id.id or self.env.uid
-        return terminal.sudo(uid)._scanner_call(
-            action, message=message, transition_type=transition_type)
+        return terminal.with_user(uid)._scanner_call(
+            action, message=message, transition_type=transition_type
+        )
 
-    @api.multi
-    def _scanner_call(self, action, message=False,
-                      transition_type='keyboard'):
+    def _scanner_call(self, action, message=False, transition_type="keyboard"):
         self.ensure_one()
-        scanner_scenario_obj = self.env['scanner.scenario']
+        scanner_scenario_obj = self.env["scanner.scenario"]
         # Retrieve the terminal screen size
-        if action == 'screen_size':
-            logger.debug('Retrieve screen size')
+        if action == "screen_size":
+            _logger.debug("Retrieve screen size")
             screen_size = self._screen_size()
-            return ('M', screen_size, 0)
+            return ("M", screen_size, 0)
 
         # Retrieve the terminal screen colors
-        if action == 'screen_colors':
-            logger.debug('Retrieve screen colors')
+        if action == "screen_colors":
+            _logger.debug("Retrieve screen colors")
             screen_colors = {
-                'base': (
-                    self.base_fg_color, self.base_bg_color),
-                'info': (
-                    self.info_fg_color, self.info_bg_color),
-                'error': (
-                    self.error_fg_color, self.error_bg_color), }
-            return ('M', screen_colors, 0)
+                "base": (self.base_fg_color, self.base_bg_color),
+                "info": (self.info_fg_color, self.info_bg_color),
+                "error": (self.error_fg_color, self.error_bg_color),
+            }
+            return ("M", screen_colors, 0)
 
         # Execute the action
-        elif action == 'action':
-
+        elif action == "action":
             # The terminal is attached to a scenario
             if self.scenario_id:
                 return self._scenario_save(
@@ -247,90 +242,87 @@ class ScannerHardware(models.Model):
                     transition_type,
                     scenario_id=self.scenario_id.id,
                     step_id=self.step_id.id,
-                    current_object=self.reference_document)
+                )
             # We asked for a scan transition type, but no action is running,
             # forbidden
-            elif transition_type == 'scanner':
+            elif transition_type == "scanner":
                 return self._unknown_action(message)
             # No action to do
             else:
-                logger.info('[%s] Action : %s (no current scenario)',
-                            self.code, message)
-                scenario_ids = scanner_scenario_obj.search([
-                    ('name', '=', message),
-                    ('type', '=', 'menu'),
-                    '|',
-                    ('warehouse_ids', '=', False),
-                    ('warehouse_ids', 'in', [self.warehouse_id.id]),
-                ])
-                if message == -1:
-                    scenario_ids = [False]
+                _logger.info(
+                    "[%s] Action : %s (no current scenario)", self.code, message
+                )
+                scenario_ids = scanner_scenario_obj.search(
+                    [
+                        ("name", "=", message),
+                        ("type", "=", "menu"),
+                        "|",
+                        ("warehouse_ids", "=", False),
+                        ("warehouse_ids", "in", [self.warehouse_id.id]),
+                    ]
+                )
                 if scenario_ids:
-                    scenarios = self._scenario_list(
-                        parent_id=scenario_ids.id)
+                    scenarios = self._scenario_list(parent_id=scenario_ids.id)
                     if scenarios:
                         menu_name = scenario_ids[0].name
-                        return ('L', ['|%s' % menu_name] + scenarios, 0)
+                        return ("L", ["|%s" % menu_name] + scenarios, 0)
                 return self._scenario_save(message, transition_type)
 
         # Reload current step
-        elif action == 'restart':
+        elif action == "restart":
             # The terminal is attached to a scenario
             if self.scenario_id:
                 return self._scenario_save(
                     message,
-                    'restart',
+                    "restart",
                     scenario_id=self.scenario_id.id,
                     step_id=self.step_id.id,
-                    current_object=self.reference_document)
+                )
 
         # Reload previous step
-        elif action == 'back':
+        elif action == "back":
             # The terminal is attached to a scenario
             if self.scenario_id:
                 return self._scenario_save(
                     message,
-                    'back',
+                    "back",
                     scenario_id=self.scenario_id.id,
                     step_id=self.step_id.id,
-                    current_object=self.reference_document)
+                )
 
         # End required
-        elif action == 'end':
+        elif action == "end":
             # Empty the values
-            logger.info('[%s] End scenario request' % self.code)
+            _logger.info("[%s] End scenario request" % self.code)
             self.sudo().empty_scanner_values()
 
-            return ('F', [_('This scenario'), _('is finished')], '')
+            return ("F", [_("This scenario"), _("is finished")], "")
 
         # If the terminal is not attached to a scenario, send the menu
         # (scenario list)
         if not self.scenario_id:
-            logger.info('[%s] No running scenario' % self.code)
+            _logger.info("[%s] No running scenario" % self.code)
             scenarios = self._scenario_list(message)
-            return ('L', scenarios, 0)
+            return ("L", scenarios, 0)
 
         # Nothing matched, return an error
-        return self._send_error(['Unknown', 'action'])
+        return self._send_error(["Unknown action"])
 
-    @api.multi
     def _send_error(self, message):
         """
         Sends an error message
         """
         self.ensure_one()
         self.sudo().empty_scanner_values()
-        return ('R', message, 0)
+        return ("R", message, 0)
 
-    @api.multi
+    @api.model
     def _unknown_action(self, message):
         """
         Sends an unknown action message
         """
-        self.ensure_one()
-        return ('U', message, 0)
+        return ("U", message, 0)
 
-    @api.one
     def empty_scanner_values(self):
         """
         This method empty all temporary values, scenario, step and
@@ -338,23 +330,17 @@ class ScannerHardware(models.Model):
         Because if we want reset term when error we must use sql query,
         it is bad in production
         """
-        scenario_custom_obj = self.env['scanner.scenario.custom']
-        if self.scenario_id:
-            scenario_custom_obj._remove_values(self.scenario_id, self)
-
-        self.write({
-            'scenario_id': False,
-            'step_id': False,
-            'step_history_ids': [
-                (2, history.id) for history in self.step_history_ids
-            ],
-            'reference_document': 0,
-            'tmp_val1': '',
-            'tmp_val2': '',
-            'tmp_val3': '',
-            'tmp_val4': '',
-            'tmp_val5': '',
-        })
+        self.write(
+            {
+                "scenario_id": False,
+                "step_id": False,
+                "step_history_ids": [
+                    (2, history.id) for history in self.step_history_ids
+                ],
+                "reference_document": 0,
+                "tmp_values": {},
+            }
+        )
         return True
 
     @api.model
@@ -362,22 +348,19 @@ class ScannerHardware(models.Model):
         """
         End the end barcode is read, we execute this step
         """
-        return self.scanner_call(terminal_number=numterm, action='end')
+        return self.scanner_call(terminal_number=numterm, action="end")
 
-    @api.one
+    @api.model
     def check_credentials(self, login, password):
-        res_users = self.env['res.users']
+        res_users = self.env["res.users"]
         try:
-            uid = False
-            users = res_users.search([('login', '=', login)])
-            if len(users) == 1:
-                uid = users[0].id
-                res_users.sudo(uid).check_credentials(password)
-            return uid
+            user = res_users.search([("login", "=", login)])
+            if user:
+                res_users.with_user(user)._check_credentials(password)
+            return user.id
         except exceptions.AccessDenied:
             return False
 
-    @api.one
     def login(self, login, password):
         """This method assign the uid associated to login
         as current user of the hardware.
@@ -385,53 +368,51 @@ class ScannerHardware(models.Model):
         scenario will no more be visible by the current user once it will
         be assigned this one
         """
-        uid = self.check_credentials(login, password)[0]
+        self.ensure_one()
+        uid = self.check_credentials(login, password)
         if uid:
-            self.write({'user_id': uid,
-                        'last_call_dt': fields.Datetime.now()})
+            self.write(
+                {"user_id": uid, "last_call_dt": fields.Datetime.now(),}
+            )
 
-    @api.multi
     def logout(self):
-        self.write({'user_id': False,
-                    'last_call_dt': False})
+        self.write(
+            {"user_id": False, "last_call_dt": False,}
+        )
         return True
 
-    @api.multi
     def _memorize(self, scenario_id, step_id, obj=None):
         """
         After affect a scenario to a scanner, we must memorize it
         If obj is specify, save it as well (ex: res.partner,12)
         """
         self.ensure_one()
-        args = {
-            'scenario_id': scenario_id,
-            'step_id': step_id,
-        }
-        if obj is not None and isinstance(obj, int):
-            args['reference_document'] = obj
+        self.write(
+            {"scenario_id": scenario_id, "step_id": step_id,}
+        )
 
-        self.write(args)
-
-    @api.multi
-    def _do_scenario_save(self, message, transition_type, scenario_id=None,
-                          step_id=None, current_object=''):
+    def _do_scenario_save(
+        self, message, transition_type, scenario_id=None, step_id=None
+    ):
         """
         Save the scenario on this terminal and execute the current step
         Return the action to the terminal
         """
         self.ensure_one()
-        scanner_scenario_obj = self.env['scanner.scenario']
-        scanner_step_obj = self.env['scanner.scenario.step']
+        scanner_scenario_obj = self.env["scanner.scenario"]
+        scanner_step_obj = self.env["scanner.scenario.step"]
         terminal = self
 
-        tracer = ''
+        tracer = ""
 
-        if (transition_type == 'restart' or
-            transition_type == 'back' and
-                terminal.scenario_id.id):
+        if (
+            transition_type == "restart"
+            or transition_type == "back"
+            and terminal.scenario_id.id
+        ):
             if terminal.step_id.no_back:
                 step_id = terminal.step_id.id
-            elif terminal.step_history_ids:
+            else:
                 last_call = terminal.step_history_ids[-1]
 
                 # Retrieve last values
@@ -441,88 +422,84 @@ class ScannerHardware(models.Model):
                 message = safe_eval(last_call.message)
 
                 # Prevent looping on the same step
-                if transition.to_id == terminal.step_id and \
-                   transition_type == 'back':
+                if transition.to_id == terminal.step_id and transition_type == "back":
                     # Remove the history line
                     last_call.unlink()
                     return self._do_scenario_save(
-                        message, transition_type,
-                        scenario_id=scenario_id, step_id=step_id,
-                        current_object=current_object)
-            else:
-                scenario_id = False
-                message = terminal.scenario_id.name
+                        message,
+                        transition_type,
+                        scenario_id=scenario_id,
+                        step_id=step_id,
+                    )
 
         # No scenario in arguments, start a new one
         if not self.scenario_id.id:
             # Retrieve the terminal's warehouse
-            terminal_warehouse_ids = terminal.warehouse_id.id
+            terminal_warehouse_ids = terminal.warehouse_id.ids
             # Retrieve the warehouse's scenarios
-            scenario_ids = []
-            if terminal_warehouse_ids:
-                scenario_ids = scanner_scenario_obj.search([
-                    ('name', '=', message),
-                    ('type', '=', 'scenario'),
-                    '|',
-                    ('warehouse_ids', '=', False),
-                    ('warehouse_ids', 'in', [terminal_warehouse_ids]),
-                ])
+            scenario_ids = scanner_scenario_obj.search(
+                [
+                    ("name", "=", message),
+                    ("type", "=", "scenario"),
+                    "|",
+                    ("warehouse_ids", "=", False),
+                    ("warehouse_ids", "in", terminal_warehouse_ids),
+                ]
+            )
 
             # If at least one scenario was found, pick the start step of the
             # first
             if scenario_ids:
                 scenario_id = scenario_ids[0].id
-                step_ids = scanner_step_obj.search([
-                    ('scenario_id', '=', scenario_id),
-                    ('step_start', '=', True),
-                ])
+                step_ids = scanner_step_obj.search(
+                    [("scenario_id", "=", scenario_id), ("step_start", "=", True),]
+                )
 
                 # No start step found on the scenario, return an error
                 if not step_ids:
-                    return self._send_error(
-                        [_('Please contact'),
-                         _('your'),
-                         _('administrator'),
-                         _('A001')])
+                    return self._send_error([_("No start step found on the scenario"),])
 
                 step_id = step_ids[0].id
                 # Store the first step in terminal history
-                terminal.step_history_ids.create({
-                    'hardware_id': terminal.id,
-                    'step_id': step_id,
-                    'message': repr(message)
-                })
+                terminal.step_history_ids.create(
+                    {
+                        "hardware_id": terminal.id,
+                        "step_id": step_id,
+                        "message": repr(message),
+                    }
+                )
 
             else:
-                return self._send_error([_('Scenario'), _('not found')])
+                return self._send_error([_("Scenario not found")])
 
-        elif transition_type not in ('back', 'none', 'restart'):
+        elif transition_type not in ("back", "none", "restart"):
             # Retrieve outgoing transitions from the current step
-            transition_obj = self.env['scanner.scenario.transition']
-            transitions = transition_obj.search([('from_id', '=', step_id)])
+            transition_obj = self.env["scanner.scenario.transition"]
+            transitions = transition_obj.search([("from_id", "=", step_id)])
 
             # Evaluate the condition for each transition
             for transition in transitions:
                 step_id = False
                 ctx = {
-                    'context': self.env.context,
-                    'model': self.env[
-                        transition.from_id.scenario_id.model_id.model],
-                    'cr': self.env.cr,
-                    'pool': self.pool,
-                    'env': self.env,
-                    'uid': self.env.uid,
-                    'm': message,
-                    'message': message,
-                    't': self,
-                    'terminal': self,
+                    "context": self.env.context,
+                    "model": self.env[
+                        transition.from_id.scenario_id.model_id.sudo().model
+                    ],
+                    "cr": self.env.cr,
+                    "env": self.env,
+                    "uid": self.env.uid,
+                    "m": message,
+                    "message": message,
+                    "t": self,
+                    "terminal": self,
                 }
                 try:
                     expr = safe_eval(str(transition.condition), ctx)
-                except:
-                    logger.exception(
+                except Exception:
+                    _logger.exception(
                         "Error when evaluating transition condition\n%s",
-                        transition.condition)
+                        transition.condition,
+                    )
                     raise
 
                 # Invalid condition, evaluate next transition
@@ -535,144 +512,137 @@ class ScannerHardware(models.Model):
 
                 # Store the old step id if we are on a back step
                 if transition.to_id.step_back and (
-                    not terminal.step_history_ids or
-                    terminal.step_history_ids[-1].transition_id != transition
+                    not terminal.step_history_ids
+                    or terminal.step_history_ids[-1].transition_id != transition
                 ):
-                    terminal.step_history_ids.create({
-                        'hardware_id': terminal.id,
-                        'step_id': transition.to_id.id,
-                        'transition_id': transition.id,
-                        'message': repr(message)
-                    })
+                    terminal.step_history_ids.create(
+                        {
+                            "hardware_id": terminal.id,
+                            "step_id": transition.to_id.id,
+                            "transition_id": transition.id,
+                            "message": repr(message),
+                        }
+                    )
 
                 # Valid transition found, stop searching
                 break
 
             # No step found, return an error
             if not step_id:
-                terminal.log('No valid transition found !')
+                terminal.log("No valid transition found !")
                 return self._unknown_action(
-                    [_('Please contact'), _('your'), _('administrator')])
+                    [_("Please contact"), _("your"), _("administrator"),]
+                )
 
         # Memorize the current step
-        terminal._memorize(
-            scenario_id,
-            step_id,
-            obj=current_object)
+        terminal._memorize(scenario_id, step_id)
 
         # Execute the step
         step = terminal.step_id
 
         ld = {
-            'cr': self.env.cr,
-            'uid': self.env.uid,
-            'pool': self.pool,
-            'env': self.env,
-            'model': self.env[step.scenario_id.model_id.model],
-            'custom': self.env['scanner.scenario.custom'],
-            'term': self,
-            'context': self.env.context,
-            'm': message,
-            'message': message,
-            't': terminal,
-            'terminal': terminal,
-            'tracer': tracer,
-            'wkf': workflow,
-            'workflow': workflow,
-            'scenario': terminal.scenario_id,
-            '_': _,
+            "cr": self.env.cr,
+            "uid": self.env.uid,
+            "env": self.env,
+            "model": self.env[step.scenario_id.model_id.sudo().model],
+            "term": self,
+            "context": self.env.context,
+            "m": message,
+            "message": message,
+            "t": terminal,
+            "terminal": terminal,
+            "tracer": tracer,
+            "scenario": terminal.scenario_id,
+            "_": _,
         }
 
-        terminal.log('Executing step %d : %s' % (step_id, step.name))
-        terminal.log('Message : %s' % repr(message))
+        terminal.log("Executing step %d : %s" % (step_id, step.name))
+        terminal.log("Message : %s" % repr(message))
         if tracer:
-            terminal.log('Tracer : %s' % repr(tracer))
+            terminal.log("Tracer : %s" % repr(tracer))
 
-        exec step.python_code in ld
+        exec(step.python_code, ld)
         if step.step_stop:
             terminal.empty_scanner_values()
 
         return (
-            ld.get(
-                'act', 'M'), ld.get(
-                'res', ['nothing']), ld.get(
-                'val', 0))
+            ld.get("act", "M"),
+            ld.get("res", ["nothing"]),
+            ld.get("val", 0),
+        )
 
-    @api.multi
-    def _scenario_save(self, message, transition_type, scenario_id=None,
-                       step_id=None, current_object=None):
+    def _scenario_save(self, message, transition_type, scenario_id=None, step_id=None):
         """
         Save the scenario on this terminal, handling transient errors by
         retrying the same step
         Return the action to the terminal
         """
         self.ensure_one()
-        result = ('M', ['TEST'], False)
+        result = ("M", ["TEST"], False)
         tries = 0
-        current_object = current_object or ''
         while True:
             try:
                 result = self._do_scenario_save(
-                    message,
-                    transition_type,
-                    scenario_id=scenario_id,
-                    step_id=step_id,
-                    current_object=current_object)
+                    message, transition_type, scenario_id=scenario_id, step_id=step_id,
+                )
                 break
             except OperationalError as e:
                 # Automatically retry the typical transaction serialization
                 # errors
                 self.env.cr.rollback()
                 if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
-                    logger.warning(
-                        "[%s] OperationalError",
-                        self.code,
-                        exc_info=True)
-                    result = (
-                        'R', [
-                            'Please contact', 'your', 'administrator'], 0)
+                    _logger.warning("[%s] OperationalError", self.code, exc_info=True)
+                    result = ("R", ["Please contact", "your", "administrator",], 0)
                     break
                 if tries >= MAX_TRIES_ON_CONCURRENCY_FAILURE:
-                    logger.warning(
+                    _logger.warning(
                         "[%s] Concurrent transaction - "
                         "OperationalError %s, maximum number of tries reached",
                         self.code,
-                        e.pgcode)
+                        e.pgcode,
+                    )
                     result = (
-                        'E', [
-                            ustr('Concurrent transaction - OperationalError '
-                                 '%s, maximum number of tries reached') %
-                            (e.pgcode)], True)
+                        "E",
+                        [
+                            ustr(
+                                "Concurrent transaction - OperationalError "
+                                "%s, maximum number of tries reached"
+                            )
+                            % (e.pgcode),
+                        ],
+                        True,
+                    )
                     break
                 wait_time = random.uniform(0.0, 2 ** tries)
                 tries += 1
-                logger.info(
+                _logger.info(
                     "[%s] Concurrent transaction detected (%s), "
                     "retrying %d/%d in %.04f sec...",
                     self.code,
                     e.pgcode,
                     tries,
                     MAX_TRIES_ON_CONCURRENCY_FAILURE,
-                    wait_time)
+                    wait_time,
+                )
                 time.sleep(wait_time)
-            except (exceptions.except_orm, exceptions.Warning) as e:
+            except (exceptions.except_orm, exceptions.UserError) as e:
                 # ORM exception, display the error message and require the "go
                 # back" action
                 self.env.cr.rollback()
-                logger.warning('[%s] OSV Exception:', self.code, exc_info=True)
-                result = ('E', [e.name or '', '', e.value or ''], True)
+                _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
+                result = ("E", [e.name or "", "", e.value or ""], True)
                 break
             except Exception as e:
                 self.env.cr.rollback()
-                logger.error('[%s] Exception: ', self.code, exc_info=True)
-                result = ('R', ['Please contact', 'your', 'administrator'], 0)
+                _logger.error("[%s] Exception: ", self.code, exc_info=True)
+                result = ("R", ["Please contact", "your", "administrator"], 0)
                 self.empty_scanner_values()
                 break
-        self.log('Return value : %r' % (result,))
+        self.log("Return value : {!r}".format(result))
 
         # Manage automatic steps
-        if result[0] == 'A':
-            return self.scanner_call(self.code, 'action', message=result[2])
+        if result[0] == "A":
+            return self.scanner_call(self.code, "action", message=result[2])
 
         return result
 
@@ -681,16 +651,21 @@ class ScannerHardware(models.Model):
         """
         Retrieve the scenario list for this warehouse
         """
-
-        scanner_scenario_obj = self.env['scanner.scenario']
+        scanner_scenario_obj = self.env["scanner.scenario"]
         scanner_scenario_ids = scanner_scenario_obj.search(
-            ['|',
-             ('warehouse_ids', '=', False),
-             ('warehouse_ids', 'in', [self.warehouse_id.id]),
-             ('parent_id', '=', parent_id)])
-        return scanner_scenario_ids.mapped('name')
+            [
+                "|",
+                ("warehouse_ids", "=", False),
+                ("warehouse_ids", "in", [self.warehouse_id.id]),
+                ("parent_id", "=", parent_id),
+                "|",
+                ("child_ids", "!=", False),
+                ("step_ids", "!=", False),
+            ]
+        )
 
-    @api.multi
+        return scanner_scenario_ids.mapped("name")
+
     def _screen_size(self):
         """
         Retrieve the screen size for this terminal
@@ -700,4 +675,4 @@ class ScannerHardware(models.Model):
 
     def log(self, log_message):
         if self.log_enabled:
-            logger.info('[%s] %s' % (self.code, ustr(log_message)))
+            _logger.info("[{}] {}".format(self.code, ustr(log_message)))
