@@ -24,6 +24,14 @@
         <field name="arch" type="xml">
             <form string="Scanner Hardware">
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                    </div>
+                    <field name="active" invisible="1" />
+                    <widget
+                        name="web_ribbon"
+                        text="Archived"
+                        bg_color="bg-danger"
+                        invisible="active"/>
                     <group colspan="4" col="4">
                         <field name="code" />
                         <field name="name" />
@@ -61,9 +69,9 @@
                         />
                     </group>
                     <group colspan="4">
-                      <separator string="Temporary values" colspan="2" />
-                      <field name="tmp_values_display" nolabel='1' />
-                   </group>
+                        <separator string="Temporary values" colspan="2" />
+                        <field name="tmp_values_display" nolabel='1' />
+                    </group>
                     <group colspan="4">
                         <separator string="Current Steps History" colspan="4" />
                         <field name="step_history_ids" colspan="4" nolabel="1">

@@ -173,8 +173,7 @@ for step in sorted_steps:
     step_xml_id = step.get_metadata()[0]["xmlid"]
     if not step_xml_id:
         step_xml_id = "scanner_scenario_step_{scenario}_{step}".format(
-            scenario=normalize_name(scenario.name),
-            step=normalize_name(step.name),
+            scenario=normalize_name(scenario.name), step=normalize_name(step.name),
         )
 
     if step_xml_id in step_xmlid_counters:
@@ -251,8 +250,7 @@ if not scenario_name:
     scenario_name = os.path.split(options.directory.strip("/"))[1]
 
 xml_filename = os.path.join(
-    options.directory,
-    "{scenario}.scenario".format(scenario=scenario_name),
+    options.directory, "{scenario}.scenario".format(scenario=scenario_name),
 )
 with open(xml_filename, "wb") as xml_file:
     ElementTree(root).write(

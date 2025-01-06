@@ -78,9 +78,7 @@ class ScannerScenarioStep(models.Model):
                 logger.error(
                     "".join(
                         traceback.format_exception(
-                            sys.exc_info()[0],
-                            sys.exc_info()[1],
-                            sys.exc_info()[2],
+                            sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],
                         )
                     )
                 )
@@ -89,12 +87,7 @@ class ScannerScenarioStep(models.Model):
                         'Error in python code for step "%s"'
                         " at line %d, offset %d:\n%s"
                     )
-                    % (
-                        step.name,
-                        exception.lineno,
-                        exception.offset,
-                        exception.msg,
-                    )
+                    % (step.name, exception.lineno, exception.offset, exception.msg,)
                 )
 
         return True

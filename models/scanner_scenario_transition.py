@@ -94,9 +94,7 @@ class ScannerScenarioTransition(models.Model):
                 logger.error(
                     "".join(
                         traceback.format_exception(
-                            sys.exc_info()[0],
-                            sys.exc_info()[1],
-                            sys.exc_info()[2],
+                            sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],
                         )
                     )
                 )

@@ -64,18 +64,7 @@ class TestStockScanner(common.TransactionCase):
             "stock_scanner.scanner_scenario_step_types"
         )
 
-        self.assertEqual(
-            (
-                "L",
-                [
-                    "|" + "Tutorial",
-                    "Step types",
-                    "Sentinel",
-                ],
-                0,
-            ),
-            ret,
-        )
+        self.assertEqual(("L", ["|" + "Tutorial", "Step types", "Sentinel",], 0), ret)
 
         # when we select a scenario of type scenario,
         # the scenario is linked to the hardware
@@ -175,17 +164,7 @@ class TestStockScanner(common.TransactionCase):
             code, action="end", message="", transition_type="keyboard"
         )
         # and a message is returned to the hardware
-        self.assertEqual(
-            (
-                "F",
-                [
-                    _("This scenario"),
-                    _("is finished"),
-                ],
-                "",
-            ),
-            ret,
-        )
+        self.assertEqual(("F", [_("This scenario"), _("is finished"),], ""), ret)
         self.assertFalse(scanner_hardware_1.scenario_id)
         self.assertFalse(scanner_hardware_1.step_id)
 
@@ -202,16 +181,7 @@ class TestStockScanner(common.TransactionCase):
         scanner_scenario = self.env["scanner.scenario"]
         # by default the login/logout scenarii are hidden
         res = scanner_scenario.search(
-            [
-                (
-                    "id",
-                    "in",
-                    (
-                        scanner_scenario_login.id,
-                        scanner_scenario_logout.id,
-                    ),
-                ),
-            ]
+            [("id", "in", (scanner_scenario_login.id, scanner_scenario_logout.id,)),]
         )
         self.assertFalse(res)
 
@@ -239,26 +209,13 @@ class TestStockScanner(common.TransactionCase):
         ret = scanner_hardware.sudo(sentinel_uid).scanner_call(code, action=None)
         self.assertEqual(("L", [], 0), ret)
         # The login/lgout functionnality can be enabled by a configuration
-        wizard = self.env["res.config.settings"].create(
-            {
-                "is_login_enabled": True,
-            }
-        )
+        wizard = self.env["res.config.settings"].create({"is_login_enabled": True,})
         wizard.execute()
         # when the config is applied, the cron and the 2 dedicated scenarii
         # become actives
         self.assertTrue(hardware_reset_user_id_on_timeout.active)
         res = scanner_scenario.search(
-            [
-                (
-                    "id",
-                    "in",
-                    (
-                        scanner_scenario_login.id,
-                        scanner_scenario_logout.id,
-                    ),
-                ),
-            ]
+            [("id", "in", (scanner_scenario_login.id, scanner_scenario_logout.id,)),]
         )
         self.assertEqual(2, len(res))
 
@@ -297,16 +254,7 @@ class TestStockScanner(common.TransactionCase):
         # and the right pwd
         ret = scanner_hardware.scanner_call(code, action="action", message="demo")
         # now we are logged in
-        self.assertEqual(
-            (
-                "F",
-                [
-                    "You are now authenticated as demo !",
-                ],
-                0,
-            ),
-            ret,
-        )
+        self.assertEqual(("F", ["You are now authenticated as demo !",], 0), ret)
         # once we are logged in, the hardware display the available scenarii
         # including the logout one
         ret = scanner_hardware.scanner_call(
@@ -335,11 +283,7 @@ class TestStockScanner(common.TransactionCase):
         """Test the wizard used to reset the user on the hardware when
         time is out"""
         # The login/lgout functionnality can be enabled by configuration.
-        wizard = self.env["res.config.settings"].create(
-            {
-                "is_login_enabled": True,
-            }
-        )
+        wizard = self.env["res.config.settings"].create({"is_login_enabled": True,})
         wizard.execute()
         scanner_hardware_1 = self.env.ref("stock_scanner.scanner_hardware_1")
 

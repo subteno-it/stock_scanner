@@ -20,12 +20,7 @@ class TestStockScannerScenarioExecution(common.TransactionCase):
         scanner_hardware = self.env["scanner.hardware"]
 
         # Create an empty submenu
-        menu = self.env["scanner.scenario"].create(
-            {
-                "name": "Menu",
-                "type": "menu",
-            }
-        )
+        menu = self.env["scanner.scenario"].create({"name": "Menu", "type": "menu",})
 
         # Call an action without any scenario running
         ret = scanner_hardware.scanner_call(

@@ -5,8 +5,7 @@ import datetime
 import logging
 import random
 import time
-import sys
-import traceback
+
 from psycopg2 import OperationalError, errorcodes
 
 from odoo import _, api, exceptions, fields, models
@@ -45,112 +44,97 @@ class ScannerHardware(models.Model):
     # ===========================================================================
     # COLUMNS
     # ===========================================================================
-    name = fields.Char(string="Name", required=True, help="Name of the hardware.")
-    code = fields.Char(string="Code", required=True, help="Code of this hardware.")
+    name = fields.Char(
+        string="Name",
+        required=True,
+        help="The name of the hardware.")
+    active = fields.Boolean(
+        string="Active",
+        default=True)
+    code = fields.Char(
+        string="Code",
+        required=True,
+        help="The code of this hardware.")
     log_enabled = fields.Boolean(
         string="Log enabled",
         default=False,
-        help="Enable logging messages from scenarios.",
-    )
+        help="Enable logging messages from scenarios.")
     screen_width = fields.Integer(
         string="Screen Width",
         default=20,
         required=False,
-        help="Width of the terminal's screen.",
-    )
+        help="Width of the terminal's screen.")
     screen_height = fields.Integer(
         string="Screen Height",
         default=4,
-        required=False,
-        help="Height of the terminal's screen.",
-    )
+        help="Height of the terminal's screen.")
     warehouse_id = fields.Many2one(
-        comodel_name="stock.warehouse",
         string="Warehouse",
+        comodel_name="stock.warehouse",
         required=True,
         ondelete="restrict",
-        help="Warehouse where is located this hardware.",
-    )
+        help="Warehouse where is located this hardware.")
     user_id = fields.Many2one(
-        comodel_name="res.users",
         string="User",
-        required=False,
+        comodel_name="res.users",
         ondelete="restrict",
         help="Allow to define an other user for execute all scenarios with "
-        "that scanner instead of default user.",
-    )
+        "that scanner instead of default user.")
     last_call_dt = fields.Datetime(
         string="Last call",
-        help="Date and time of the last call to the system done by the " "scanner.",
-    )
+        help="Date and time of the last call to the system done by the scanner.")
     scenario_id = fields.Many2one(
-        comodel_name="scanner.scenario",
         string="Scenario",
-        required=False,
+        comodel_name="scanner.scenario",
         readonly=True,
-        default=False,
         ondelete="restrict",
-        help="Scenario used for this hardware.",
-    )
+        help="Scenario used for this hardware.")
     step_id = fields.Many2one(
-        comodel_name="scanner.scenario.step",
         string="Current Step",
-        required=False,
+        comodel_name="scanner.scenario.step",
         readonly=True,
-        default=False,
         ondelete="restrict",
-        help="Current step for this hardware.",
-    )
+        help="Current step for this hardware.")
     step_history_ids = fields.One2many(
         comodel_name="scanner.hardware.step.history",
         inverse_name="hardware_id",
         string="Steps History",
         readonly=True,
-        help="History of all steps executed by this hardware"
-        " during the current scenario.",
-    )
+        help="History of all steps executed by this hardware during the current scenario.")
     reference_document = fields.Integer(
         string="Reference",
-        default=0,
-        required=False,
         readonly=True,
-        help="ID of the reference document.",
-    )
+        help="ID of the reference document.")
     base_fg_color = fields.Selection(
-        selection="_colors_get",
         string="Base - Text Color",
+        selection="_colors_get",
         required=True,
         default="white",
-        help="Default color for the text.",
-    )
+        help="Default color for the text.")
     base_bg_color = fields.Selection(
         selection="_colors_get",
         string="Base - Background Color",
         required=True,
         default="blue",
-        help="Default color for the background.",
-    )
+        help="Default color for the background.")
     info_fg_color = fields.Selection(
-        selection="_colors_get",
         string="Info - Text Color",
+        selection="_colors_get",
         required=True,
         default="yellow",
-        help="Color for the info text.",
-    )
+        help="Color for the info text.")
     info_bg_color = fields.Selection(
-        selection="_colors_get",
         string="Info - Background Color",
+        selection="_colors_get",
         required=True,
         default="blue",
-        help="Color for the info background.",
-    )
+        help="Color for the info background.")
     error_fg_color = fields.Selection(
-        selection="_colors_get",
         string="Error - Text Color",
+        selection="_colors_get",
         required=True,
         default="yellow",
-        help="Color for the error text.",
-    )
+        help="Color for the error text.")
     error_bg_color = fields.Selection(
         selection="_colors_get",
         string="Error - Background Color",
@@ -171,7 +155,7 @@ class ScannerHardware(models.Model):
                 "<table><tr>",
                 "<th>" + html_escape(_("Key")) + "</th>",
                 "<th>" + html_escape(_("Value")) + "</th></tr>",
-            ]
+                ]
             for key in sorted(rec.tmp_values.keys()):
                 val = rec.tmp_values[key]
                 txt.append(
@@ -180,88 +164,6 @@ class ScannerHardware(models.Model):
                 )
             txt.append("</table>")
             rec.tmp_values_display = "".join(txt)
-
-    # The json_tmp_valN properties are kept as a compatibility layer to
-    # help scenario migration. You should use the tmp_values field
-    # instead. These will be removed when the module is migrated to
-    # Odoo 13.0
-    @property
-    def json_tmp_val1(self):
-        self.ensure_one()
-        return self.get_tmp_value("val1")
-
-    @json_tmp_val1.setter
-    def json_tmp_val1(self, value):
-        self.ensure_one()
-        self.update_tmp_values({"val1": value})
-
-    @property
-    def json_tmp_val2(self):
-        self.ensure_one()
-        return self.get_tmp_value("val2")
-
-    @json_tmp_val2.setter
-    def json_tmp_val2(self, value):
-        self.ensure_one()
-        self.update_tmp_values({"val2": value})
-
-    @property
-    def json_tmp_val3(self):
-        self.ensure_one()
-        return self.get_tmp_value("val3")
-
-    @json_tmp_val3.setter
-    def json_tmp_val3(self, value):
-        self.ensure_one()
-        self.update_tmp_values({"val3": value})
-
-    @property
-    def json_tmp_val4(self):
-        self.ensure_one()
-        return self.get_tmp_value("val4")
-
-    @json_tmp_val4.setter
-    def json_tmp_val4(self, value):
-        self.ensure_one()
-        self.update_tmp_values({"val4": value})
-
-    @property
-    def json_tmp_val5(self):
-        self.ensure_one()
-        return self.get_tmp_value("val5")
-
-    @json_tmp_val5.setter
-    def json_tmp_val5(self, value):
-        self.ensure_one()
-        self.update_tmp_values({"val5": value})
-
-    def update_tmp_values(self, values):
-        self.ensure_one()
-        tmp_values = self.tmp_values
-        tmp_values.update(values)
-        self.write({"tmp_values": tmp_values})
-
-    def get_tmp_value(self, key_name, default=None):
-        self.ensure_one()
-        return self.tmp_values.get(key_name, default)
-
-    def set_tmp_value(self, key_name, value):
-        _logger.warning(
-            "'%s' is deprecated. Please use 'terminal.tmp_values'." % key_name
-        )
-        self.ensure_one()
-        self.update_tmp_values(
-            {
-                key_name: value,
-            }
-        )
-
-    def clean_tmp_values(self, items):
-        self.ensure_one()
-        values = self.tmp_values
-        for item in items:
-            values.pop(item, None)
-        self.update_tmp_values(values)
 
     @api.model
     def timeout_session(self):
@@ -273,8 +175,9 @@ class ScannerHardware(models.Model):
         )
         expired_str = fields.Datetime.to_string(expired_dt)
         terminals = self.search([("last_call_dt", "<", expired_str)])
-        terminals.logout()
-        terminals.empty_scanner_values()
+        if terminals:
+            terminals.logout()
+            terminals.empty_scanner_values()
 
     @api.model
     def _get_terminal(self, terminal_number):
@@ -469,18 +372,12 @@ class ScannerHardware(models.Model):
         uid = self.check_credentials(login, password)
         if uid:
             self.write(
-                {
-                    "user_id": uid,
-                    "last_call_dt": fields.Datetime.now(),
-                }
+                {"user_id": uid, "last_call_dt": fields.Datetime.now(),}
             )
 
     def logout(self):
         self.write(
-            {
-                "user_id": False,
-                "last_call_dt": False,
-            }
+            {"user_id": False, "last_call_dt": False,}
         )
         return True
 
@@ -491,10 +388,7 @@ class ScannerHardware(models.Model):
         """
         self.ensure_one()
         self.write(
-            {
-                "scenario_id": scenario_id,
-                "step_id": step_id,
-            }
+            {"scenario_id": scenario_id, "step_id": step_id,}
         )
 
     def _do_scenario_save(
@@ -558,19 +452,12 @@ class ScannerHardware(models.Model):
             if scenario_ids:
                 scenario_id = scenario_ids[0].id
                 step_ids = scanner_step_obj.search(
-                    [
-                        ("scenario_id", "=", scenario_id),
-                        ("step_start", "=", True),
-                    ]
+                    [("scenario_id", "=", scenario_id), ("step_start", "=", True),]
                 )
 
                 # No start step found on the scenario, return an error
                 if not step_ids:
-                    return self._send_error(
-                        [
-                            _("No start step found on the scenario"),
-                        ]
-                    )
+                    return self._send_error([_("No start step found on the scenario"),])
 
                 step_id = step_ids[0].id
                 # Store the first step in terminal history
@@ -599,7 +486,6 @@ class ScannerHardware(models.Model):
                         transition.from_id.scenario_id.model_id.sudo().model
                     ],
                     "cr": self.env.cr,
-                    "pool": self.pool,
                     "env": self.env,
                     "uid": self.env.uid,
                     "m": message,
@@ -645,11 +531,7 @@ class ScannerHardware(models.Model):
             if not step_id:
                 terminal.log("No valid transition found !")
                 return self._unknown_action(
-                    [
-                        _("Please contact"),
-                        _("your"),
-                        _("administrator"),
-                    ]
+                    [_("Please contact"), _("your"), _("administrator"),]
                 )
 
         # Memorize the current step
@@ -661,7 +543,6 @@ class ScannerHardware(models.Model):
         ld = {
             "cr": self.env.cr,
             "uid": self.env.uid,
-            "pool": self.pool,
             "env": self.env,
             "model": self.env[step.scenario_id.model_id.sudo().model],
             "term": self,
@@ -680,7 +561,16 @@ class ScannerHardware(models.Model):
         if tracer:
             terminal.log("Tracer : %s" % repr(tracer))
 
-        exec(step.python_code, ld)
+        try:
+            exec(step.python_code, ld)
+        except Exception as e:
+            exec(step.python_code, ld)
+            print('-------------------------------------------------------------------------------------------------------------')
+            print(f"Error step: {step.name}")
+            print(f"Exception type: {type(e).__name__}")
+            print(f"Exception message: {str(e)}")
+            print('-------------------------------------------------------------------------------------------------------------')
+
         if step.step_stop:
             terminal.empty_scanner_values()
 
@@ -697,16 +587,67 @@ class ScannerHardware(models.Model):
         Return the action to the terminal
         """
         self.ensure_one()
-        result = ('M', ['TEST'], False)
-
-        result = self._do_scenario_save(
-            message,
-            transition_type,
-            scenario_id=scenario_id,
-            step_id=step_id,
-        )
-
-        self.log('Return value : %r' % (result,))
+        result = ("M", ["TEST"], False)
+        tries = 0
+        while True:
+            try:
+                result = self._do_scenario_save(
+                    message, transition_type, scenario_id=scenario_id, step_id=step_id,
+                )
+                break
+            except OperationalError as e:
+                # Automatically retry the typical transaction serialization
+                # errors
+                self.env.cr.rollback()
+                if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
+                    _logger.warning("[%s] OperationalError", self.code, exc_info=True)
+                    result = ("R", ["Please contact", "your", "administrator",], 0)
+                    break
+                if tries >= MAX_TRIES_ON_CONCURRENCY_FAILURE:
+                    _logger.warning(
+                        "[%s] Concurrent transaction - "
+                        "OperationalError %s, maximum number of tries reached",
+                        self.code,
+                        e.pgcode,
+                    )
+                    result = (
+                        "E",
+                        [
+                            ustr(
+                                "Concurrent transaction - OperationalError "
+                                "%s, maximum number of tries reached"
+                            )
+                            % (e.pgcode),
+                        ],
+                        True,
+                    )
+                    break
+                wait_time = random.uniform(0.0, 2 ** tries)
+                tries += 1
+                _logger.info(
+                    "[%s] Concurrent transaction detected (%s), "
+                    "retrying %d/%d in %.04f sec...",
+                    self.code,
+                    e.pgcode,
+                    tries,
+                    MAX_TRIES_ON_CONCURRENCY_FAILURE,
+                    wait_time,
+                )
+                time.sleep(wait_time)
+            except (exceptions.except_orm, exceptions.UserError) as e:
+                # ORM exception, display the error message and require the "go
+                # back" action
+                self.env.cr.rollback()
+                _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
+                result = ("E", [e.name or "", "", e.value or ""], True)
+                break
+            except Exception as e:
+                self.env.cr.rollback()
+                _logger.error("[%s] Exception: ", self.code, exc_info=True)
+                result = ("R", ["Please contact", "your", "administrator"], 0)
+                self.empty_scanner_values()
+                break
+        self.log("Return value : {!r}".format(result))
 
         # Manage automatic steps
         if result[0] == "A":
