@@ -198,6 +198,7 @@ def scenario_convert_file(
     mode="update",
     noupdate=False,
     kind=None,
+    report=None,
     pathname=None,
 ):
     if pathname is None:
@@ -208,10 +209,11 @@ def scenario_convert_file(
     if extension == ".scenario":
         fp = misc.file_open(pathname, "rb")
         try:
-            uid = odoo.SUPERUSER_ID
-            env = odoo.api.Environment(cr, uid, {"active_test": False})
+            with odoo.api.Environment.manage():
+                uid = odoo.SUPERUSER_ID
+                env = odoo.api.Environment(cr, uid, {"active_test": False})
 
-            import_scenario(env, module, fp, mode, directory, filename)
+                import_scenario(env, module, fp, mode, directory, filename)
         finally:
             fp.close()
     else:
@@ -223,6 +225,7 @@ def scenario_convert_file(
             mode=mode,
             noupdate=noupdate,
             kind=kind,
+            report=report,
             pathname=pathname,
         )
 

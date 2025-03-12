@@ -32,7 +32,7 @@ class ExportScenario(models.TransientModel):
     is_copy = fields.Boolean(
         default=False, string="Check to make a copy in new instance."
     )
-    zip_file = fields.Binary(attachment=True)
+    zip_file = fields.Binary(attchment=True)
 
     def action_export(self):
         self.ensure_one()

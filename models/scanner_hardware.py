@@ -44,97 +44,113 @@ class ScannerHardware(models.Model):
     # ===========================================================================
     # COLUMNS
     # ===========================================================================
-    name = fields.Char(
-        string="Name",
-        required=True,
-        help="The name of the hardware.")
-    active = fields.Boolean(
-        string="Active",
-        default=True)
-    code = fields.Char(
-        string="Code",
-        required=True,
-        help="The code of this hardware.")
+    name = fields.Char(string="Name", required=True, help="Name of the hardware.")
+    active = fields.Boolean(string="Active", default=True)
+    code = fields.Char(string="Code", required=True, help="Code of this hardware.")
     log_enabled = fields.Boolean(
         string="Log enabled",
         default=False,
-        help="Enable logging messages from scenarios.")
+        help="Enable logging messages from scenarios.",
+    )
     screen_width = fields.Integer(
         string="Screen Width",
         default=20,
         required=False,
-        help="Width of the terminal's screen.")
+        help="Width of the terminal's screen.",
+    )
     screen_height = fields.Integer(
         string="Screen Height",
         default=4,
-        help="Height of the terminal's screen.")
+        required=False,
+        help="Height of the terminal's screen.",
+    )
     warehouse_id = fields.Many2one(
-        string="Warehouse",
         comodel_name="stock.warehouse",
+        string="Warehouse",
         required=True,
         ondelete="restrict",
-        help="Warehouse where is located this hardware.")
+        help="Warehouse where is located this hardware.",
+    )
     user_id = fields.Many2one(
-        string="User",
         comodel_name="res.users",
+        string="User",
+        required=False,
         ondelete="restrict",
         help="Allow to define an other user for execute all scenarios with "
-        "that scanner instead of default user.")
+        "that scanner instead of default user.",
+    )
     last_call_dt = fields.Datetime(
         string="Last call",
-        help="Date and time of the last call to the system done by the scanner.")
+        help="Date and time of the last call to the system done by the " "scanner.",
+    )
     scenario_id = fields.Many2one(
-        string="Scenario",
         comodel_name="scanner.scenario",
+        string="Scenario",
+        required=False,
         readonly=True,
+        default=False,
         ondelete="restrict",
-        help="Scenario used for this hardware.")
+        help="Scenario used for this hardware.",
+    )
     step_id = fields.Many2one(
-        string="Current Step",
         comodel_name="scanner.scenario.step",
+        string="Current Step",
+        required=False,
         readonly=True,
+        default=False,
         ondelete="restrict",
-        help="Current step for this hardware.")
+        help="Current step for this hardware.",
+    )
     step_history_ids = fields.One2many(
         comodel_name="scanner.hardware.step.history",
         inverse_name="hardware_id",
         string="Steps History",
         readonly=True,
-        help="History of all steps executed by this hardware during the current scenario.")
+        help="History of all steps executed by this hardware"
+        " during the current scenario.",
+    )
     reference_document = fields.Integer(
         string="Reference",
+        default=0,
+        required=False,
         readonly=True,
-        help="ID of the reference document.")
+        help="ID of the reference document.",
+    )
     base_fg_color = fields.Selection(
-        string="Base - Text Color",
         selection="_colors_get",
+        string="Base - Text Color",
         required=True,
         default="white",
-        help="Default color for the text.")
+        help="Default color for the text.",
+    )
     base_bg_color = fields.Selection(
         selection="_colors_get",
         string="Base - Background Color",
         required=True,
         default="blue",
-        help="Default color for the background.")
+        help="Default color for the background.",
+    )
     info_fg_color = fields.Selection(
-        string="Info - Text Color",
         selection="_colors_get",
+        string="Info - Text Color",
         required=True,
         default="yellow",
-        help="Color for the info text.")
+        help="Color for the info text.",
+    )
     info_bg_color = fields.Selection(
-        string="Info - Background Color",
         selection="_colors_get",
+        string="Info - Background Color",
         required=True,
         default="blue",
-        help="Color for the info background.")
+        help="Color for the info background.",
+    )
     error_fg_color = fields.Selection(
-        string="Error - Text Color",
         selection="_colors_get",
+        string="Error - Text Color",
         required=True,
         default="yellow",
-        help="Color for the error text.")
+        help="Color for the error text.",
+    )
     error_bg_color = fields.Selection(
         selection="_colors_get",
         string="Error - Background Color",
@@ -144,8 +160,7 @@ class ScannerHardware(models.Model):
     )
     tmp_values = fields.Serialized(readonly=True)
     tmp_values_display = fields.Html(
-        compute="_compute_tmp_values_display",
-        help="Debug tmp values",
+        compute="_compute_tmp_values_display", help="Debug tmp values",
     )
 
     @api.depends("tmp_values")
@@ -155,7 +170,7 @@ class ScannerHardware(models.Model):
                 "<table><tr>",
                 "<th>" + html_escape(_("Key")) + "</th>",
                 "<th>" + html_escape(_("Value")) + "</th></tr>",
-                ]
+            ]
             for key in sorted(rec.tmp_values.keys()):
                 val = rec.tmp_values[key]
                 txt.append(
@@ -175,9 +190,8 @@ class ScannerHardware(models.Model):
         )
         expired_str = fields.Datetime.to_string(expired_dt)
         terminals = self.search([("last_call_dt", "<", expired_str)])
-        if terminals:
-            terminals.logout()
-            terminals.empty_scanner_values()
+        terminals.logout()
+        terminals.empty_scanner_values()
 
     @api.model
     def _get_terminal(self, terminal_number):
@@ -486,6 +500,7 @@ class ScannerHardware(models.Model):
                         transition.from_id.scenario_id.model_id.sudo().model
                     ],
                     "cr": self.env.cr,
+                    "pool": self.pool,
                     "env": self.env,
                     "uid": self.env.uid,
                     "m": message,
@@ -543,6 +558,7 @@ class ScannerHardware(models.Model):
         ld = {
             "cr": self.env.cr,
             "uid": self.env.uid,
+            "pool": self.pool,
             "env": self.env,
             "model": self.env[step.scenario_id.model_id.sudo().model],
             "term": self,

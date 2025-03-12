@@ -130,7 +130,6 @@
             </search>
         </field>
     </record>
-    <!-- No longer exists in V15+
     <record id="view_scanner_scenario_diagram" model="ir.ui.view">
         <field name="name">scanner.scenario.diagram</field>
         <field name="model">scanner.scenario</field>
@@ -158,12 +157,11 @@
             </diagram>
         </field>
     </record>
-    -->
     <record model="ir.actions.act_window" id="act_open_scanner_scenario_view">
         <field name="name">Scanner Scenario</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">scanner.scenario</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,diagram</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
     </record>

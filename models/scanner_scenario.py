@@ -32,31 +32,31 @@ class ScannerScenario(models.Model):
         help="Appear on barcode reader screen.",
     )
     sequence = fields.Integer(
-        string="Sequence",
-        help="Sequence order."
+        string="Sequence", default=0, required=False, help="Sequence order."
     )
     active = fields.Boolean(
-        string="Active",
-        default=True,
-        help="If checked, this scenario is available."
+        string="Active", default=True, help="If check, this object is always available."
     )
     model_id = fields.Many2one(
-        string="Model",
         comodel_name="ir.model",
+        string="Model",
+        required=False,
+        ondelete="restrict",
         help="Model used for this scenario.",
     )
     step_ids = fields.One2many(
-        string="Scenario",
         comodel_name="scanner.scenario.step",
         inverse_name="scenario_id",
+        string="Scenario",
+        ondelete="cascade",
         help="Step of the current running scenario.",
     )
     warehouse_ids = fields.Many2many(
-        string="Warehouses",
         comodel_name="stock.warehouse",
         relation="scanner_scenario_warehouse_rel",
         column1="scenario_id",
         column2="warehouse_id",
+        string="Warehouses",
         help="Warehouses for this scenario.",
     )
     notes = fields.Text(
@@ -65,46 +65,44 @@ class ScannerScenario(models.Model):
         default="Notes\n\n\n",
     )
     parent_id = fields.Many2one(
-        string="Parent",
         comodel_name="scanner.scenario",
+        string="Parent",
         required=False,
         ondelete="restrict",
         help="Parent scenario, used to create menus.",
     )
     child_ids = fields.One2many(
-        string="Subordinates",
-        comodel_name="scanner.scenario",
-        inverse_name="parent_id",
+        comodel_name="scanner.scenario", inverse_name="parent_id", string="Subordinates"
     )
     type = fields.Selection(
-        string="Type",
         selection="_type_get",
+        string="Type",
         required=True,
         default="scenario",
         help="Defines if this scenario is a menu or an executable scenario.",
     )
     company_id = fields.Many2one(
-        string="Company",
         comodel_name="res.company",
+        string="Company",
         required=True,
         default=lambda self: self.env.user.company_id.id,
         ondelete="restrict",
         help="Company to be used on this scenario.",
     )
     group_ids = fields.Many2many(
-        string="Allowed Groups",
         comodel_name="res.groups",
         relation="scanner_scenario_res_groups_rel",
         column1="scenario_id",
         column2="group_id",
+        string="Allowed Groups",
         default=lambda self: [self.env.ref("stock.group_stock_user").id],
     )
     user_ids = fields.Many2many(
-        string="Allowed Users",
         comodel_name="res.users",
         relation="scanner_scenario_res_users_rel",
         column1="scenario_id",
         column2="user_id",
+        string="Allowed Users",
     )
 
     @api.constrains("parent_id")
