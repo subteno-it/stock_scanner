@@ -3,9 +3,11 @@
     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 -->
 <odoo noupdate="0">
+
     <record model="res.groups" id="group_stock_scanner_sentinel">
         <field name="name">Sentinel: technical users</field>
     </record>
+
     <record model="ir.rule" id="scanner_hardware_access_user">
         <field name="name">Scanner hardware users rules</field>
         <field name="model_id" ref="model_scanner_hardware" />
@@ -18,6 +20,7 @@
             name="domain_force"
         >['|', ('user_id','=',user.id), ('user_id','=', False)]</field>
     </record>
+
     <record model="ir.rule" id="scanner_hardware_access_group_sentinel">
         <field name="name">Scanner hardware group sentinel rule</field>
         <field name="model_id" ref="model_scanner_hardware" />
@@ -28,6 +31,7 @@
         <field name="groups" eval="[(4, ref('group_stock_scanner_sentinel')),]" />
         <field name="domain_force">[(1,'=', 1)]</field>
     </record>
+
     <record model="ir.rule" id="scanner_scenario_access_user_or_group">
         <field name="name">Scanner scenario users and groups rules</field>
         <field name="model_id" ref="model_scanner_scenario" />
@@ -39,6 +43,7 @@
             name="domain_force"
         >['|', ('user_ids','=',user.id), ('group_ids','in', [x.id for x in user.groups_id])]</field>
     </record>
+
     <record model="ir.rule" id="scanner_scenario_step_access_user_or_group">
         <field name="name">Scanner scenario step users and groups rules</field>
         <field name="model_id" ref="model_scanner_scenario_step" />
@@ -50,6 +55,7 @@
             name="domain_force"
         >['|', ('scenario_id.user_ids','=',user.id), ('scenario_id.group_ids','in', [x.id for x in user.groups_id])]</field>
     </record>
+
     <record model="ir.rule" id="scanner_scenario_transition_access_user_or_group">
         <field name="name">Scanner scenario transition users and groups rules</field>
         <field name="model_id" ref="model_scanner_scenario_transition" />

@@ -18,8 +18,7 @@ class TestStockScannerHardware(common.TransactionCase):
         self.assertFalse(self.env["scanner.hardware"].scanner_check(self.hardware.code))
 
     def test_check_scenario_with_running_scenario(self):
-        """ Should return the scenario id and name from an existing hardware
-        """
+        """Should return the scenario id and name from an existing hardware"""
         scenario = self.env.ref("stock_scanner.scanner_scenario_tutorial")
         self.hardware.scenario_id = scenario
 
@@ -30,14 +29,12 @@ class TestStockScannerHardware(common.TransactionCase):
         self.assertEqual(scenario_name, scenario_name)
 
     def test_wrong_credentials(self):
-        """ Should not write the date when trying to login sith a wrong password
-        """
+        """Should not write the date when trying to login sith a wrong password"""
         uid = self.hardware.check_credentials("wrong login", "wrong password")
         self.assertEqual(False, uid)
 
     def test_wrong_login(self):
-        """ Should not write the date when trying to login sith a wrong password
-        """
+        """Should not write the date when trying to login sith a wrong password"""
         last_date = self.hardware.last_call_dt
         self.hardware.login("demo", "wrong password")
         self.assertEqual(last_date, self.hardware.last_call_dt)
@@ -129,7 +126,16 @@ class TestStockScannerHardware(common.TransactionCase):
         )
 
         # The scenario should have been restarted
-        self.assertEqual(ret, ("R", ["No start step found on the scenario",], 0))
+        self.assertEqual(
+            ret,
+            (
+                "R",
+                [
+                    "No start step found on the scenario",
+                ],
+                0,
+            ),
+        )
 
     def test_no_transition(self):
         """ Should not do anything when there is no transition """
@@ -168,12 +174,25 @@ class TestStockScannerHardware(common.TransactionCase):
 
         # Remove all outgoing transitions from the current step
         self.hardware.step_id.out_transition_ids.write(
-            {"condition": "False",}
+            {
+                "condition": "False",
+            }
         )
 
         # Try to go to the next step
         ret = scanner_hardware.scanner_call(self.hardware.code, action="action")
-        self.assertEqual(ret, ("U", ["Please contact", "your", "administrator",], 0))
+        self.assertEqual(
+            ret,
+            (
+                "U",
+                [
+                    "Please contact",
+                    "your",
+                    "administrator",
+                ],
+                0,
+            ),
+        )
 
     def test_transition_execution_error(self):
         """ Should return an error when a transition's condition crashes """
@@ -191,13 +210,26 @@ class TestStockScannerHardware(common.TransactionCase):
 
         # Remove all outgoing transitions from the current step
         self.hardware.step_id.out_transition_ids.write(
-            {"condition": "undefined_function()",}
+            {
+                "condition": "undefined_function()",
+            }
         )
 
         # Try to go to the next step
         with mute_logger("stock_scanner"):
             ret = scanner_hardware.scanner_call(self.hardware.code, action="action")
-        self.assertEqual(ret, ("R", ["Please contact", "your", "administrator",], 0))
+        self.assertEqual(
+            ret,
+            (
+                "R",
+                [
+                    "Please contact",
+                    "your",
+                    "administrator",
+                ],
+                0,
+            ),
+        )
 
     def test_automatic_step(self):
         """ Should automatically go to the next step when automatic """
@@ -236,7 +268,7 @@ class TestStockScannerHardware(common.TransactionCase):
         )
 
     def test_log_from_scenario(self):
-        """ Should write a line in the log when calling terminal.log
+        """Should write a line in the log when calling terminal.log
 
         This test doesn't actually really check that a line has been written,
         but simply ensures that using the method will not crash the scenario
@@ -271,7 +303,7 @@ class TestStockScannerHardware(common.TransactionCase):
         self.assertEqual(ret, ("M", [], 0))
 
     def test_log_tracer(self):
-        """ Should write a line in the log when the transition has a tracer
+        """Should write a line in the log when the transition has a tracer
 
         This test doesn't actually really check that a line has been written,
         but simply ensures that using a tracer will not crash the scenario
@@ -292,7 +324,9 @@ class TestStockScannerHardware(common.TransactionCase):
         self.hardware.log_enabled = True
         # Change the code of the next step to execute to write in the log
         self.hardware.step_id.out_transition_ids.write(
-            {"tracer": "something",}
+            {
+                "tracer": "something",
+            }
         )
 
         # Go to the next step
@@ -335,7 +369,10 @@ class TestStockScannerHardware(common.TransactionCase):
         tmp_val_1 = "test 1"
         tmp_val_2 = list(range(5))
         hardware.update_tmp_values(
-            {"tmp_val_1": "test 1", "tmp_val_2": tmp_val_2,}
+            {
+                "tmp_val_1": "test 1",
+                "tmp_val_2": tmp_val_2,
+            }
         )
         self.assertEqual(hardware.get_tmp_value("tmp_val_1"), tmp_val_1)
         self.assertEqual(hardware.get_tmp_value("tmp_val_2"), tmp_val_2)
@@ -347,11 +384,18 @@ class TestStockScannerHardware(common.TransactionCase):
         tmp_val_2 = list(range(5))
 
         hardware.set_tmp_value(
-            "tmp_dict", {"extra_1": tmp_val_1, "extra_2": tmp_val_2,}
+            "tmp_dict",
+            {
+                "extra_1": tmp_val_1,
+                "extra_2": tmp_val_2,
+            },
         )
         self.assertEqual(
             hardware.get_tmp_value("tmp_dict"),
-            {"extra_1": tmp_val_1, "extra_2": tmp_val_2,},
+            {
+                "extra_1": tmp_val_1,
+                "extra_2": tmp_val_2,
+            },
         )
         self.assertEqual(hardware.get_tmp_value("tmp_dict").get("extra_1"), tmp_val_1)
 

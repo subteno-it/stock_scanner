@@ -25,7 +25,11 @@ class TestStockScannerScenarioLoading(common.TransactionCase):
     def test_get_xml_id_from_reference_res_id(self):
         """ Check the 'id' argument in get_xml_id """
         xml_id = get_xml_id(
-            "element", "stock_scanner", {"reference_res_id": "other_id",}
+            "element",
+            "stock_scanner",
+            {
+                "reference_res_id": "other_id",
+            },
         )
         self.assertEqual(xml_id, "stock_scanner.other_id")
 
@@ -45,7 +49,11 @@ class TestStockScannerScenarioLoading(common.TransactionCase):
     def test_get_xml_id_from_full_reference_res_id(self):
         """ Check the 'id' argument in get_xml_id """
         xml_id = get_xml_id(
-            "element", "stock_scanner", {"reference_res_id": "module_name.other_id",}
+            "element",
+            "stock_scanner",
+            {
+                "reference_res_id": "module_name.other_id",
+            },
         )
         self.assertEqual(xml_id, "module_name.other_id")
 
@@ -58,7 +66,10 @@ class TestStockScannerScenarioLoading(common.TransactionCase):
         """ Should raise if the model is not found """
         with self.assertRaises(ValueError):
             convert_file(
-                self.env.cr, "stock_scanner", "tests/data/TestWrongModel.scenario", {},
+                self.env.cr,
+                "stock_scanner",
+                "tests/data/TestWrongModel.scenario",
+                {},
             )
 
     def test_wrong_company(self):
@@ -75,5 +86,8 @@ class TestStockScannerScenarioLoading(common.TransactionCase):
         """ Should raise if the parent scenario is not found """
         with self.assertRaises(ValueError):
             convert_file(
-                self.env.cr, "stock_scanner", "tests/data/TestWrongParent.scenario", {},
+                self.env.cr,
+                "stock_scanner",
+                "tests/data/TestWrongParent.scenario",
+                {},
             )

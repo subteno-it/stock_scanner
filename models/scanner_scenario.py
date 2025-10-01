@@ -41,14 +41,13 @@ class ScannerScenario(models.Model):
         comodel_name="ir.model",
         string="Model",
         required=False,
-        ondelete="restrict",
+        ondelete="cascade",
         help="Model used for this scenario.",
     )
     step_ids = fields.One2many(
         comodel_name="scanner.scenario.step",
         inverse_name="scenario_id",
         string="Scenario",
-        ondelete="cascade",
         help="Step of the current running scenario.",
     )
     warehouse_ids = fields.Many2many(
@@ -58,6 +57,12 @@ class ScannerScenario(models.Model):
         column2="warehouse_id",
         string="Warehouses",
         help="Warehouses for this scenario.",
+    )
+    shared_custom = fields.Boolean(
+        string='Shared Custom',
+        default=False,
+        help='Allows to share the custom values with a shared scanner in the '
+             'same warehouse.'
     )
     notes = fields.Text(
         string="Notes",
@@ -130,7 +135,3 @@ class ScannerScenario(models.Model):
                 }
             )
         return scenario_new
-
-    def action_export_scenario(self):
-        self.ensure_one()
-        return self.env.ref("stock_scanner.action_wizard_export_scenario").read()[0]

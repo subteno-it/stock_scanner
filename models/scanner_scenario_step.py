@@ -51,14 +51,12 @@ class ScannerScenarioStep(models.Model):
         comodel_name="scanner.scenario.transition",
         inverse_name="from_id",
         string="Outgoing transitions",
-        ondelete="cascade",
         help="Transitions which goes to this step.",
     )
     in_transition_ids = fields.One2many(
         comodel_name="scanner.scenario.transition",
         inverse_name="to_id",
         string="Incoming transitions",
-        ondelete="cascade",
         help="Transitions which goes to the next step.",
     )
     python_code = fields.Text(
@@ -80,7 +78,9 @@ class ScannerScenarioStep(models.Model):
                 logger.error(
                     "".join(
                         traceback.format_exception(
-                            sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],
+                            sys.exc_info()[0],
+                            sys.exc_info()[1],
+                            sys.exc_info()[2],
                         )
                     )
                 )
@@ -89,7 +89,12 @@ class ScannerScenarioStep(models.Model):
                         'Error in python code for step "%s"'
                         " at line %d, offset %d:\n%s"
                     )
-                    % (step.name, exception.lineno, exception.offset, exception.msg,)
+                    % (
+                        step.name,
+                        exception.lineno,
+                        exception.offset,
+                        exception.msg,
+                    )
                 )
 
         return True

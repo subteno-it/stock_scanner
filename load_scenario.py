@@ -27,7 +27,10 @@ def get_xml_id(element, module, values):
         raise exceptions.Warning(_("The id of a %s cannot be empty!") % element)
 
     if "." not in xml_id:
-        xml_id = "{}.{}".format(module, xml_id)
+        xml_id = "{}.{}".format(
+            module,
+            xml_id,
+        )
 
     return xml_id
 
@@ -64,19 +67,29 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
             if "group_ids" not in scenario_values:
                 scenario_values["group_ids"] = []
 
-            group_ids = group_obj.search([("full_name", "=", node.text),])
+            group_ids = group_obj.search(
+                [
+                    ("full_name", "=", node.text),
+                ]
+            )
             if group_ids:
                 scenario_values["group_ids"].append((4, group_ids[0].id))
             else:
-                scenario_values["group_ids"].append((4, env.ref(node.text).id),)
+                scenario_values["group_ids"].append(
+                    (4, env.ref(node.text).id),
+                )
         elif node.tag == "user_ids":
             if "user_ids" not in scenario_values:
                 scenario_values["user_ids"] = []
 
-            user_ids = user_obj.search([("login", "=", node.text),])
+            user_ids = user_obj.search(
+                [
+                    ("login", "=", node.text),
+                ]
+            )
             if user_ids:
                 scenario_values["user_ids"].append((4, user_ids[0].id))
-        elif node.tag == "active":
+        elif node.tag in ("active", "shared_custom"):
             scenario_values[node.tag] = safe_eval(node.text) or False
         else:
             scenario_values[node.tag] = node.text or False
@@ -85,15 +98,28 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
     scenario_xml_id = get_xml_id(_("scenario"), module, scenario_values)
 
     if scenario_values["model_id"]:
+        model_name = scenario_values["model_id"]
         scenario_values["model_id"] = (
-            model_obj.search([("model", "=", scenario_values["model_id"]),]).id or False
+            model_obj.search(
+                [
+                    ("model", "=", scenario_values["model_id"]),
+                ]
+            ).id
+            or False
         )
         if not scenario_values["model_id"]:
-            raise ValueError("Model not found: %s" % scenario_values["model_id"])
+            # raise ValueError("Model not found: %s" % model_name)
+            logger.error("Scenario \"%s\" could not be imported:" % scenario_xml_id)
+            logger.error("Model not found: %s" % model_name)
+            return
 
     if scenario_values.get("company_id"):
         scenario_values["company_id"] = (
-            company_obj.search([("name", "=", scenario_values["company_id"]),]).id
+            company_obj.search(
+                [
+                    ("name", "=", scenario_values["company_id"]),
+                ]
+            ).id
             or False
         )
         if not scenario_values["company_id"]:
@@ -142,13 +168,19 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
         step_xml_id = get_xml_id(_("step"), module, step_values)
 
         # Get python source
-        python_filename = "{}/{}.py".format(directory, step_xml_id)
+        python_filename = "{}/{}.py".format(
+            directory,
+            step_xml_id,
+        )
         # Alow to use the id without module name for the current module
         try:
             python_file = misc.file_open(python_filename)
         except IOError:
             if module == step_xml_id.split(".")[0]:
-                python_filename = "{}/{}.py".format(directory, step_xml_id.split(".")[1])
+                python_filename = "{}/{}.py".format(
+                    directory,
+                    step_xml_id.split(".")[1],
+                )
                 python_file = misc.file_open(python_filename)
 
         # Load python code and check syntax
@@ -198,7 +230,6 @@ def scenario_convert_file(
     mode="update",
     noupdate=False,
     kind=None,
-    report=None,
     pathname=None,
 ):
     if pathname is None:
@@ -209,11 +240,10 @@ def scenario_convert_file(
     if extension == ".scenario":
         fp = misc.file_open(pathname, "rb")
         try:
-            with odoo.api.Environment.manage():
-                uid = odoo.SUPERUSER_ID
-                env = odoo.api.Environment(cr, uid, {"active_test": False})
+            uid = odoo.SUPERUSER_ID
+            env = odoo.api.Environment(cr, uid, {"active_test": False})
 
-                import_scenario(env, module, fp, mode, directory, filename)
+            import_scenario(env, module, fp, mode, directory, filename)
         finally:
             fp.close()
     else:
@@ -225,7 +255,6 @@ def scenario_convert_file(
             mode=mode,
             noupdate=noupdate,
             kind=kind,
-            report=report,
             pathname=pathname,
         )
 

@@ -5,7 +5,8 @@ import datetime
 import logging
 import random
 import time
-
+import sys
+import traceback
 from psycopg2 import OperationalError, errorcodes
 
 from odoo import _, api, exceptions, fields, models
@@ -45,7 +46,6 @@ class ScannerHardware(models.Model):
     # COLUMNS
     # ===========================================================================
     name = fields.Char(string="Name", required=True, help="Name of the hardware.")
-    active = fields.Boolean(string="Active", default=True)
     code = fields.Char(string="Code", required=True, help="Code of this hardware.")
     log_enabled = fields.Boolean(
         string="Log enabled",
@@ -160,7 +160,8 @@ class ScannerHardware(models.Model):
     )
     tmp_values = fields.Serialized(readonly=True)
     tmp_values_display = fields.Html(
-        compute="_compute_tmp_values_display", help="Debug tmp values",
+        compute="_compute_tmp_values_display",
+        help="Debug tmp values",
     )
 
     @api.depends("tmp_values")
@@ -179,6 +180,88 @@ class ScannerHardware(models.Model):
                 )
             txt.append("</table>")
             rec.tmp_values_display = "".join(txt)
+
+    # The json_tmp_valN properties are kept as a compatibility layer to
+    # help scenario migration. You should use the tmp_values field
+    # instead. These will be removed when the module is migrated to
+    # Odoo 13.0
+    @property
+    def json_tmp_val1(self):
+        self.ensure_one()
+        return self.get_tmp_value("val1")
+
+    @json_tmp_val1.setter
+    def json_tmp_val1(self, value):
+        self.ensure_one()
+        self.update_tmp_values({"val1": value})
+
+    @property
+    def json_tmp_val2(self):
+        self.ensure_one()
+        return self.get_tmp_value("val2")
+
+    @json_tmp_val2.setter
+    def json_tmp_val2(self, value):
+        self.ensure_one()
+        self.update_tmp_values({"val2": value})
+
+    @property
+    def json_tmp_val3(self):
+        self.ensure_one()
+        return self.get_tmp_value("val3")
+
+    @json_tmp_val3.setter
+    def json_tmp_val3(self, value):
+        self.ensure_one()
+        self.update_tmp_values({"val3": value})
+
+    @property
+    def json_tmp_val4(self):
+        self.ensure_one()
+        return self.get_tmp_value("val4")
+
+    @json_tmp_val4.setter
+    def json_tmp_val4(self, value):
+        self.ensure_one()
+        self.update_tmp_values({"val4": value})
+
+    @property
+    def json_tmp_val5(self):
+        self.ensure_one()
+        return self.get_tmp_value("val5")
+
+    @json_tmp_val5.setter
+    def json_tmp_val5(self, value):
+        self.ensure_one()
+        self.update_tmp_values({"val5": value})
+
+    def update_tmp_values(self, values):
+        self.ensure_one()
+        tmp_values = self.tmp_values
+        tmp_values.update(values)
+        self.write({"tmp_values": tmp_values})
+
+    def get_tmp_value(self, key_name, default=None):
+        self.ensure_one()
+        return self.tmp_values.get(key_name, default)
+
+    def set_tmp_value(self, key_name, value):
+        _logger.warning(
+            "'%s' is deprecated. Please use 'terminal.tmp_values'." % key_name
+        )
+        self.ensure_one()
+        self.update_tmp_values(
+            {
+                key_name: value,
+            }
+        )
+
+    def clean_tmp_values(self, items):
+        self.ensure_one()
+        values = self.tmp_values
+        for item in items:
+            values.pop(item, None)
+        self.update_tmp_values(values)
 
     @api.model
     def timeout_session(self):
@@ -386,12 +469,18 @@ class ScannerHardware(models.Model):
         uid = self.check_credentials(login, password)
         if uid:
             self.write(
-                {"user_id": uid, "last_call_dt": fields.Datetime.now(),}
+                {
+                    "user_id": uid,
+                    "last_call_dt": fields.Datetime.now(),
+                }
             )
 
     def logout(self):
         self.write(
-            {"user_id": False, "last_call_dt": False,}
+            {
+                "user_id": False,
+                "last_call_dt": False,
+            }
         )
         return True
 
@@ -402,7 +491,10 @@ class ScannerHardware(models.Model):
         """
         self.ensure_one()
         self.write(
-            {"scenario_id": scenario_id, "step_id": step_id,}
+            {
+                "scenario_id": scenario_id,
+                "step_id": step_id,
+            }
         )
 
     def _do_scenario_save(
@@ -466,12 +558,19 @@ class ScannerHardware(models.Model):
             if scenario_ids:
                 scenario_id = scenario_ids[0].id
                 step_ids = scanner_step_obj.search(
-                    [("scenario_id", "=", scenario_id), ("step_start", "=", True),]
+                    [
+                        ("scenario_id", "=", scenario_id),
+                        ("step_start", "=", True),
+                    ]
                 )
 
                 # No start step found on the scenario, return an error
                 if not step_ids:
-                    return self._send_error([_("No start step found on the scenario"),])
+                    return self._send_error(
+                        [
+                            _("No start step found on the scenario"),
+                        ]
+                    )
 
                 step_id = step_ids[0].id
                 # Store the first step in terminal history
@@ -546,7 +645,11 @@ class ScannerHardware(models.Model):
             if not step_id:
                 terminal.log("No valid transition found !")
                 return self._unknown_action(
-                    [_("Please contact"), _("your"), _("administrator"),]
+                    [
+                        _("Please contact"),
+                        _("your"),
+                        _("administrator"),
+                    ]
                 )
 
         # Memorize the current step
@@ -594,67 +697,16 @@ class ScannerHardware(models.Model):
         Return the action to the terminal
         """
         self.ensure_one()
-        result = ("M", ["TEST"], False)
-        tries = 0
-        while True:
-            try:
-                result = self._do_scenario_save(
-                    message, transition_type, scenario_id=scenario_id, step_id=step_id,
-                )
-                break
-            except OperationalError as e:
-                # Automatically retry the typical transaction serialization
-                # errors
-                self.env.cr.rollback()
-                if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
-                    _logger.warning("[%s] OperationalError", self.code, exc_info=True)
-                    result = ("R", ["Please contact", "your", "administrator",], 0)
-                    break
-                if tries >= MAX_TRIES_ON_CONCURRENCY_FAILURE:
-                    _logger.warning(
-                        "[%s] Concurrent transaction - "
-                        "OperationalError %s, maximum number of tries reached",
-                        self.code,
-                        e.pgcode,
-                    )
-                    result = (
-                        "E",
-                        [
-                            ustr(
-                                "Concurrent transaction - OperationalError "
-                                "%s, maximum number of tries reached"
-                            )
-                            % (e.pgcode),
-                        ],
-                        True,
-                    )
-                    break
-                wait_time = random.uniform(0.0, 2 ** tries)
-                tries += 1
-                _logger.info(
-                    "[%s] Concurrent transaction detected (%s), "
-                    "retrying %d/%d in %.04f sec...",
-                    self.code,
-                    e.pgcode,
-                    tries,
-                    MAX_TRIES_ON_CONCURRENCY_FAILURE,
-                    wait_time,
-                )
-                time.sleep(wait_time)
-            except (exceptions.except_orm, exceptions.UserError) as e:
-                # ORM exception, display the error message and require the "go
-                # back" action
-                self.env.cr.rollback()
-                _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
-                result = ("E", [e.name or "", "", e.value or ""], True)
-                break
-            except Exception as e:
-                self.env.cr.rollback()
-                _logger.error("[%s] Exception: ", self.code, exc_info=True)
-                result = ("R", ["Please contact", "your", "administrator"], 0)
-                self.empty_scanner_values()
-                break
-        self.log("Return value : {!r}".format(result))
+        result = ('M', ['TEST'], False)
+
+        result = self._do_scenario_save(
+            message,
+            transition_type,
+            scenario_id=scenario_id,
+            step_id=step_id,
+        )
+
+        self.log('Return value : %r' % (result,))
 
         # Manage automatic steps
         if result[0] == "A":
