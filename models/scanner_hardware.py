@@ -563,13 +563,13 @@ class ScannerHardware(models.Model):
 
         try:
             exec(step.python_code, ld)
-        except Exception as e:
-            exec(step.python_code, ld)
-            print('-------------------------------------------------------------------------------------------------------------')
-            print(f"Error step: {step.name}")
-            print(f"Exception type: {type(e).__name__}")
-            print(f"Exception message: {str(e)}")
-            print('-------------------------------------------------------------------------------------------------------------')
+        except Exception:
+            _logger.exception(
+                "[%s] Scenario step '%s' failed. Keeping original exception.",
+                terminal.code,
+                step.name,
+            )
+            raise
 
         if step.step_stop:
             terminal.empty_scanner_values()
@@ -634,12 +634,11 @@ class ScannerHardware(models.Model):
                     wait_time,
                 )
                 time.sleep(wait_time)
-            except (exceptions.except_orm, exceptions.UserError) as e:
-                # ORM exception, display the error message and require the "go
-                # back" action
+            except exceptions.UserError as e:
                 self.env.cr.rollback()
                 _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
-                result = ("E", [e.name or "", "", e.value or ""], True)
+                result = ("E", [e.name if hasattr(e, 'name') else "", "", str(e) or ""], True)
+                self.empty_scanner_values()
                 break
             except Exception as e:
                 self.env.cr.rollback()
