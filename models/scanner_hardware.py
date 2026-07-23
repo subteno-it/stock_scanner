@@ -391,6 +391,54 @@ class ScannerHardware(models.Model):
             {"scenario_id": scenario_id, "step_id": step_id,}
         )
 
+    def _get_step_translation_module(self, step):
+        """Return the module owning this step/scenario for code translations."""
+        self.ensure_one()
+        imd_obj = self.env["ir.model.data"].sudo()
+
+        step_xmlid = imd_obj.search(
+            [
+                ("model", "=", "scanner.scenario.step"),
+                ("res_id", "=", step.id),
+            ],
+            limit=1,
+        )
+        if step_xmlid and step_xmlid.module:
+            return step_xmlid.module
+
+        scenario_xmlid = imd_obj.search(
+            [
+                ("model", "=", "scanner.scenario"),
+                ("res_id", "=", step.scenario_id.id),
+            ],
+            limit=1,
+        )
+        if scenario_xmlid and scenario_xmlid.module:
+            return scenario_xmlid.module
+
+        return None
+
+    def _build_step_translator(self, step):
+        """Build a translator bound to the step's module for exec()-based code."""
+        module = self._get_step_translation_module(step)
+
+        def _translate(msgid, *args, **kwargs):
+            translation = _._get_translation(msgid, module=module)
+            if args or kwargs:
+                try:
+                    return translation % (args or kwargs)
+                except (TypeError, ValueError, KeyError):
+                    bad_translation = translation
+                    translation = msgid % (args or kwargs)
+                    _logger.exception(
+                        "Bad translation %r for string %r",
+                        bad_translation,
+                        msgid,
+                    )
+            return translation
+
+        return _translate
+
     def _do_scenario_save(
         self, message, transition_type, scenario_id=None, step_id=None
     ):
@@ -539,6 +587,7 @@ class ScannerHardware(models.Model):
 
         # Execute the step
         step = terminal.step_id
+        step_translate = terminal._build_step_translator(step)
 
         ld = {
             "cr": self.env.cr,
@@ -553,7 +602,7 @@ class ScannerHardware(models.Model):
             "terminal": terminal,
             "tracer": tracer,
             "scenario": terminal.scenario_id,
-            "_": _,
+            "_": step_translate,
         }
 
         terminal.log("Executing step %d : %s" % (step_id, step.name))
@@ -561,15 +610,7 @@ class ScannerHardware(models.Model):
         if tracer:
             terminal.log("Tracer : %s" % repr(tracer))
 
-        try:
-            exec(step.python_code, ld)
-        except Exception:
-            _logger.exception(
-                "[%s] Scenario step '%s' failed. Keeping original exception.",
-                terminal.code,
-                step.name,
-            )
-            raise
+        exec(step.python_code, ld)
 
         if step.step_stop:
             terminal.empty_scanner_values()
