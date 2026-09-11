@@ -7,22 +7,22 @@ import random
 import time
 
 from psycopg2 import OperationalError, errorcodes
-
+from odoo.tools.translate import get_translation
 from odoo import _, api, exceptions, fields, models
 from odoo.tools.misc import html_escape, ustr
 from odoo.tools.safe_eval import safe_eval
 
 _logger = logging.getLogger("stock_scanner")
 
-_CURSES_COLORS = [
-    ("black", _("Black")),
-    ("blue", _("Blue")),
-    ("cyan", _("Cyan")),
-    ("green", _("Green")),
-    ("magenta", _("Magenta")),
-    ("red", _("Red")),
-    ("white", _("White")),
-    ("yellow", _("Yellow")),
+_CURSES_COLORS_VALUES = [
+    "black",
+    "blue",
+    "cyan",
+    "green",
+    "magenta",
+    "red",
+    "white",
+    "yellow",
 ]
 
 PG_CONCURRENCY_ERRORS_TO_RETRY = (
@@ -39,7 +39,17 @@ class ScannerHardware(models.Model):
 
     @api.model
     def _colors_get(self):
-        return _CURSES_COLORS
+        """Return the list of available colors with translations."""
+        return [
+            ("black", _("Black")),
+            ("blue", _("Blue")),
+            ("cyan", _("Cyan")),
+            ("green", _("Green")),
+            ("magenta", _("Magenta")),
+            ("red", _("Red")),
+            ("white", _("White")),
+            ("yellow", _("Yellow")),
+        ]
 
     # ===========================================================================
     # COLUMNS
@@ -421,19 +431,26 @@ class ScannerHardware(models.Model):
     def _build_step_translator(self, step):
         """Build a translator bound to the step's module for exec()-based code."""
         module = self._get_step_translation_module(step)
+        lang = (
+            self.env.context.get("lang")
+            or self.env.lang
+            or self.user_id.lang
+            or self.env.user.lang
+            or "en_US"
+        )
 
-        def _translate(msgid, *args, **kwargs):
-            translation = _._get_translation(msgid, module=module)
+        def _translate(source, *args, **kwargs):
+            translation = get_translation(module, lang, source, ())
             if args or kwargs:
                 try:
                     return translation % (args or kwargs)
                 except (TypeError, ValueError, KeyError):
                     bad_translation = translation
-                    translation = msgid % (args or kwargs)
+                    translation = source % (args or kwargs)
                     _logger.exception(
                         "Bad translation %r for string %r",
                         bad_translation,
-                        msgid,
+                        source,
                     )
             return translation
 
@@ -579,7 +596,7 @@ class ScannerHardware(models.Model):
             if not step_id:
                 terminal.log("No valid transition found !")
                 return self._unknown_action(
-                    [_("Please contact"), _("your"), _("administrator"),]
+                    [_("Please contact"), _("your"), _("administrator"), _("No valid transition found !")]
                 )
 
         # Memorize the current step
@@ -611,7 +628,6 @@ class ScannerHardware(models.Model):
             terminal.log("Tracer : %s" % repr(tracer))
 
         exec(step.python_code, ld)
-
         if step.step_stop:
             terminal.empty_scanner_values()
 
@@ -641,8 +657,11 @@ class ScannerHardware(models.Model):
                 # errors
                 self.env.cr.rollback()
                 if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
-                    _logger.warning("[%s] OperationalError", self.code, exc_info=True)
-                    result = ("R", ["Please contact", "your", "administrator",], 0)
+                    error_msg = f"Database error: {e.pgcode or 'Unknown'}"
+                    _logger.warning(
+                        "[%s] OperationalError: %s", self.code, error_msg, exc_info=True
+                    )
+                    result = ("R", [error_msg, "Please contact", "your administrator"], 0)
                     break
                 if tries >= MAX_TRIES_ON_CONCURRENCY_FAILURE:
                     _logger.warning(
@@ -676,15 +695,30 @@ class ScannerHardware(models.Model):
                 )
                 time.sleep(wait_time)
             except exceptions.UserError as e:
+                # ORM exception, display the error message and require the "go
+                # back" action
                 self.env.cr.rollback()
                 _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
-                result = ("E", [e.name if hasattr(e, 'name') else "", "", str(e) or ""], True)
-                self.empty_scanner_values()
+                # In Odoo 19, UserError message is accessible via str(e)
+                error_msg = str(e)
+                result = ("E", ["error:", error_msg, "", ""], True)
                 break
             except Exception as e:
                 self.env.cr.rollback()
-                _logger.error("[%s] Exception: ", self.code, exc_info=True)
-                result = ("R", ["Please contact", "your", "administrator"], 0)
+                error_msg = str(e) if e else "Unknown error"
+                _logger.error(
+                    "[%s] Exception: %s", self.code, error_msg, exc_info=True
+                )
+                # Include error message if it's safe to display (not too long and not sensitive)
+                if len(error_msg) < 100 and not any(
+                    sensitive in error_msg.lower()
+                    for sensitive in ["password", "secret", "key", "token"]
+                ):
+                    # Split long messages into multiple lines for the scanner display
+                    error_lines = error_msg.split("\n")[:3]  # Max 3 lines
+                    result = ("R", error_lines if error_lines else ["Please contact", "your", "administrator"], 0)
+                else:
+                    result = ("R", ["Please contact", "your", "administrator", "Error : " + error_msg], 0)
                 self.empty_scanner_values()
                 break
         self.log("Return value : {!r}".format(result))

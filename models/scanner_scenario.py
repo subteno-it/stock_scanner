@@ -109,7 +109,7 @@ class ScannerScenario(models.Model):
 
     @api.constrains("parent_id")
     def _check_recursion(self):
-        if not super(ScannerScenario, self)._check_recursion():
+        if self._has_cycle():
             raise exceptions.UserError(
                 _("Error ! You can not create recursive scenarios."),
             )

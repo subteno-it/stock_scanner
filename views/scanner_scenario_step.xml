@@ -20,14 +20,14 @@
         <field name="model">scanner.scenario.step</field>
         <field name="priority" eval="8" />
         <field name="arch" type="xml">
-            <tree string="Scenario Step">
+            <list string="Scenario Step">
                 <field name="scenario_id" />
                 <field name="name" />
                 <field name="step_start" />
                 <field name="step_stop" />
                 <field name="step_back" />
                 <field name="no_back" />
-            </tree>
+            </list>
         </field>
     </record>
     <record id="view_scanner_scenario_step_form" model="ir.ui.view">
@@ -63,14 +63,14 @@
                         <page string="Transition">
                             <separator string="Outgoing transitions" colspan="4" />
                             <field name="out_transition_ids" colspan="4" nolabel="1">
-                                <tree string="Transition">
+                                <list string="Transition">
                                     <field name="sequence" />
                                     <field name="name" />
                                     <field name="to_id" />
                                     <field name="condition" />
                                     <field name="transition_type" />
                                     <field name="tracer" />
-                                </tree>
+                                </list>
                                 <form string="Transition">
                                     <group colspan="4" col="4">
                                         <field name="name" />
@@ -88,14 +88,14 @@
                             </field>
                             <separator string="Incoming transitions" colspan="4" />
                             <field name="in_transition_ids" colspan="4" nolabel="1">
-                                <tree string="Transition">
+                                <list string="Transition">
                                     <field name="sequence" />
                                     <field name="name" />
                                     <field name="from_id" />
                                     <field name="condition" />
                                     <field name="transition_type" />
                                     <field name="tracer" />
-                                </tree>
+                                </list>
                                 <form string="Transition">
                                     <group colspan="4" col="4">
                                         <field name="name" />
@@ -133,7 +133,7 @@
         <field name="name">Scenario Step</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">scanner.scenario.step</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[]</field>
         <field name="context">{}</field>
     </record>
@@ -152,7 +152,7 @@
     >
         <field name="act_window_id" ref="act_open_scanner_scenario_step_view" />
         <field name="sequence" eval="10" />
-        <field name="view_mode">tree</field>
+        <field name="view_mode">list</field>
         <field name="view_id" ref="view_scanner_scenario_step_tree" />
     </record>
     <menuitem

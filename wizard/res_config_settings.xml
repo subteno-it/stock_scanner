@@ -7,20 +7,14 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="stock.res_config_settings_view_form" />
         <field name="arch" type="xml">
-            <xpath expr="//block[last()]" position="after">
-                <block title="Configure scanner module" name="stock_scanner_setting_container">
-                    <setting id="stock_scanner_login" help="Enable the login and logout scenarii">
-                        <field name="is_login_enabled" />
-                        <div class="content-group">
-                                <div
-                                    class="mt16"
-                                    invisible="not is_login_enabled">
-                                    <label for="session_timeout_delay" />:
-                                    <field name="session_timeout_delay" />
-                                </div>
-                            </div>
-                    </setting>
-                </block>
+            <xpath expr="//app[@name='stock']/block[@name='operations_setting_container']" position="inside">
+                <setting id="stock_scanner_config" string="Scanner Module" help="Enable scanner login and logout scenarios.">
+                    <field name="is_login_enabled" />
+                    <div class="content-group mt-2" invisible="not is_login_enabled">
+                        <label for="session_timeout_delay" />
+                        <field name="session_timeout_delay" />
+                    </div>
+                </setting>
             </xpath>
         </field>
     </record>

@@ -7,13 +7,16 @@ import os
 from lxml import etree
 
 import odoo
+import odoo.modules.loading
 from odoo import exceptions
 from odoo.tools import misc
 from odoo.tools.convert import convert_file
 from odoo.tools.safe_eval import safe_eval
-from odoo.tools.translate import _
 
 logger = logging.getLogger("init:stock_scanner")
+
+
+ORIGINAL_CONVERT_FILE = convert_file
 
 
 def get_xml_id(element, module, values):
@@ -24,7 +27,7 @@ def get_xml_id(element, module, values):
     if not xml_id:
         xml_id = values.get("reference_res_id")
     if not xml_id:
-        raise exceptions.Warning(_("The id of a %s cannot be empty!") % element)
+        raise exceptions.Warning("The id of a %s cannot be empty!" % element)
 
     if "." not in xml_id:
         xml_id = "{}.{}".format(module, xml_id)
@@ -82,7 +85,7 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
             scenario_values[node.tag] = node.text or False
 
     # Transition from old format to new format
-    scenario_xml_id = get_xml_id(_("scenario"), module, scenario_values)
+    scenario_xml_id = get_xml_id("scenario", module, scenario_values)
 
     if scenario_values["model_id"]:
         scenario_values["model_id"] = (
@@ -139,7 +142,7 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
         step_values["scenario_id"] = scenario.id
 
         # Transition from old to new format
-        step_xml_id = get_xml_id(_("step"), module, step_values)
+        step_xml_id = get_xml_id("step", module, step_values)
 
         # Get python source
         python_filename = "{}/{}.py".format(directory, step_xml_id)
@@ -175,7 +178,7 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
         transition_values = {}
         for key, item in node.items():
             if key in ["to_id", "from_id"]:
-                item = resid[get_xml_id(_("step"), module, {"id": item})]
+                item = resid[get_xml_id("step", module, {"id": item})]
 
             transition_values[key] = item
 
@@ -184,7 +187,7 @@ def import_scenario(env, module, xml_file, mode, directory, filename):
             "scanner.scenario.transition",
             module,
             transition_values,
-            xml_id=get_xml_id(_("transition"), module, transition_values),
+            xml_id=get_xml_id("transition", module, transition_values),
             mode=mode,
             noupdate=noupdate,
         )
@@ -206,16 +209,10 @@ def scenario_convert_file(
     directory, filename = os.path.split(pathname)
     extension = os.path.splitext(filename)[1].lower()
     if extension == ".scenario":
-        fp = misc.file_open(pathname, "rb")
-        try:
-            uid = odoo.SUPERUSER_ID
-            env = odoo.api.Environment(env.cr, uid, {"active_test": False})
-
+        with misc.file_open(pathname, "rb", env=env) as fp:
             import_scenario(env, module, fp, mode, directory, filename)
-        finally:
-            fp.close()
     else:
-        convert_file(
+        ORIGINAL_CONVERT_FILE(
             env,
             module,
             filename,
@@ -231,3 +228,4 @@ def scenario_convert_file(
 # To be able to load scenarios from manifest file
 odoo.tools.convert_file = scenario_convert_file
 odoo.tools.convert.convert_file = scenario_convert_file
+odoo.modules.loading.convert_file = scenario_convert_file

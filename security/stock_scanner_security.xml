@@ -37,7 +37,7 @@
         <field eval="0" name="perm_unlink" />
         <field
             name="domain_force"
-        >['|', ('user_ids','=',user.id), ('group_ids','in', [x.id for x in user.groups_id])]</field>
+        >['|', ('user_ids','=',user.id), ('group_ids','in', [x.id for x in user.group_ids])]</field>
     </record>
     <record model="ir.rule" id="scanner_scenario_step_access_user_or_group">
         <field name="name">Scanner scenario step users and groups rules</field>
@@ -48,7 +48,7 @@
         <field eval="0" name="perm_unlink" />
         <field
             name="domain_force"
-        >['|', ('scenario_id.user_ids','=',user.id), ('scenario_id.group_ids','in', [x.id for x in user.groups_id])]</field>
+        >['|', ('scenario_id.user_ids','=',user.id), ('scenario_id.group_ids','in', [x.id for x in user.group_ids])]</field>
     </record>
     <record model="ir.rule" id="scanner_scenario_transition_access_user_or_group">
         <field name="name">Scanner scenario transition users and groups rules</field>
@@ -59,6 +59,6 @@
         <field eval="0" name="perm_unlink" />
         <field
             name="domain_force"
-        >['|', ('scenario_id.user_ids','=',user.id), ('scenario_id.group_ids','in', [x.id for x in user.groups_id])]</field>
+        >['|', ('scenario_id.user_ids','=',user.id), ('scenario_id.group_ids','in', [x.id for x in user.group_ids])]</field>
     </record>
 </odoo>
