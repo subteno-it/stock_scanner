@@ -1,6 +1,6 @@
-.. image:: https://img.shields.io/badge/licence-AGPL--3-blue.svg
-   :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
-   :alt: License: AGPL-3
+.. image:: https://img.shields.io/badge/licence-LGPL--3-blue.svg
+   :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
+   :alt: License: LGPL-3
 
 ====================================================
 Stock Scanner : WorkFlow engine for scanner hardware
@@ -46,7 +46,7 @@ The "step type code" sent by the "odoo-sentinel" client at start-up is the IP ad
 If needed enable Login/Logout
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The module comes with 2 predefined scenarii for Login and Logout. The functionality is disabled by default and the user to use in
-Odoo must be specified in the `.odoorpcrc` file used by odoo-sentinel and can be overriden on the Scanner Hardware definition
+Odoo must be the owner of the API key set in the `.odoorpcrc` file used by odoo-sentinel and can be overriden on the Scanner Hardware definition
 in Odoo.
 
 If the Login/logout functionality is enabled, when a user starts a session with odoo-sentinel, only the Login scenario is displayed on the
@@ -69,9 +69,27 @@ settings. "Settings > Warehouse"
 For the odoo-sentinel client
 ----------------------------
 
-The odoo-sentinel client uses an OdooRPC profile to connect to Odoo.
+Since Odoo 20, the XML-RPC and JSON-RPC endpoints (``/xmlrpc``, ``/jsonrpc``) are deprecated. The ``odoo-sentinel`` client
+must connect through the JSON-2 external API (``POST /json/2/<model>/<method>``, authenticated by an API key).
+The stock ``odoo-sentinel`` package relies on OdooRPC, which cannot speak JSON-2, so this repository ships the
+``odoo-sentinel-json2`` package (separate repository). It starts the unmodified ``odoo-sentinel`` ncurses client on top of a JSON-2 client,
+keeping the same usage: a shell session, locally or through SSH, and the same profile file.
+
+Installation (on the machine where the sentinel runs)::
+
+    uv pip install git+https://github.com/subteno-it/odoo-sentinel-json2
+    # then copy odoorpcrc.sample from that repository to ~/.odoorpcrc
+    chmod 600 ~/.odoorpcrc
+
+Create an API key for the *Sentinel technical user*, usable for the JSON-2 API (scope ``rpc``): from the security section of the user
+preferences (the exact menu label depends on the Odoo build). Put it in the ``api_key`` entry of the profile
+(``passwd`` is also read as the API key, so a former OdooRPC profile only needs its password replaced by the key).
+The key must stay in a file readable by its owner only, and be revoked when the terminal is decommissioned.
+
+Start the client with ``odoo-sentinel-json2`` instead of ``odoo-sentinel``. It accepts the same arguments.
+
 The default configuration file is `~/.odoorpcrc`, but this can be customized, using the `-c`/`--config` argument.
-See the `hardware/odoorpcrc.sample` file for an example.
+See the `odoorpcrc.sample` file of the ``odoo-sentinel-json2`` repository for an example.
 
 If the `-p`/`--profile` argument is not given on the command line, a profile named `sentinel` will be used.
 
@@ -95,7 +113,7 @@ Writing scenario
 Creation
 ^^^^^^^^
 
-The preferred way to start the creation of a scenario is to create steps and transitions in diagram view.
+The preferred way to start the creation of a scenario is to create steps and transitions in the list views (or in the diagram view when the optional ``stock_scanner_flow_editor`` module is installed).
 
 Once your steps are created, you can write python code directly from Odoo, or you can export the scenario to write the python code with your preferred code editor.
 

@@ -1,14 +1,22 @@
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 # © 2015 Laurent Mignon <laurent.mignon@acsone.eu>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import datetime
 
-from odoo import _, fields
-from odoo.tests import common
+from odoo import fields
+from odoo.tests import tagged
+
+from .common import StockScannerCommon
 
 
-class TestStockScanner(common.TransactionCase):
+@tagged("post_install", "-at_install", "stock_scanner")
+class TestStockScanner(StockScannerCommon):
+    """Cover the scanner call flow, the login/logout scenarios and the session timeout."""
+
     def test_scanner_call(self):
+        """A terminal can browse the menus, run the tutorial scenario, go back and end it."""
         scanner_hardware_1 = self.env.ref("stock_scanner.scanner_hardware_1")
 
         # Reset the current scenario
@@ -28,7 +36,7 @@ class TestStockScanner(common.TransactionCase):
 
         # call action screen_size
         ret = scanner_hardware.scanner_call(code, action="screen_size")
-        self.assertEquals(("M", (40, 20), 0), ret)
+        self.assertEqual(("M", (40, 20), 0), ret)
 
         # call to screen_color
         ret = scanner_hardware.scanner_call(code, action="screen_colors")
@@ -46,31 +54,34 @@ class TestStockScanner(common.TransactionCase):
         )
 
         #  a call without action will return the list of root scenario
-        scanner_scenario_menu_tutorial = self.env.ref(
-            "stock_scanner.scanner_scenario_tutorial"
-        )
+        scanner_scenario_menu_tutorial = self.env.ref("stock_scanner.scanner_scenario_tutorial")
         ret = scanner_hardware.scanner_call(code, action=None)
         self.assertEqual(("L", ["Tutorial"], 0), ret)
 
         # to select a menu we call the hardware whith action = action and
         # message = name of the menu to select
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=scanner_scenario_menu_tutorial.name
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=scanner_scenario_menu_tutorial.name)
 
         # the result is the list of nested scenario since or scenario is a
         # menu with the parent menu as title
-        scanner_scenario_step_types = self.env.ref(
-            "stock_scanner.scanner_scenario_step_types"
-        )
+        scanner_scenario_step_types = self.env.ref("stock_scanner.scanner_scenario_step_types")
 
-        self.assertEqual(("L", ["|" + "Tutorial", "Step types", "Sentinel",], 0), ret)
+        self.assertEqual(
+            (
+                "L",
+                [
+                    "|" + "Tutorial",
+                    "Step types",
+                    "Sentinel",
+                ],
+                0,
+            ),
+            ret,
+        )
 
         # when we select a scenario of type scenario,
         # the scenario is linked to the hardware
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=scanner_scenario_step_types.name
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=scanner_scenario_step_types.name)
 
         self.assertEqual(scanner_hardware_1.scenario_id, scanner_scenario_step_types)
 
@@ -93,14 +104,10 @@ class TestStockScanner(common.TransactionCase):
         scanner_scenario_step_types_intro_step = self.env.ref(
             "stock_scanner.scanner_scenario_step_step_types_introduction"
         )
-        self.assertEqual(
-            scanner_hardware_1.step_id, scanner_scenario_step_types_intro_step
-        )
+        self.assertEqual(scanner_hardware_1.step_id, scanner_scenario_step_types_intro_step)
 
         # a step is executed by calling an action with a transition_type
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message="", transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message="", transition_type="keyboard")
         # the result is the next step to execute
         self.assertEqual(
             (
@@ -108,8 +115,7 @@ class TestStockScanner(common.TransactionCase):
                 [
                     "|Message step",
                     "",
-                    "A step designed to display some information, "
-                    "without waiting for any user input.",
+                    "A step designed to display some information, without waiting for any user input.",
                 ],
                 0,
             ),
@@ -119,14 +125,10 @@ class TestStockScanner(common.TransactionCase):
         scanner_scenario_step_types_message_step = self.env.ref(
             "stock_scanner.scanner_scenario_step_step_types_message"
         )
-        self.assertEqual(
-            scanner_hardware_1.step_id, scanner_scenario_step_types_message_step
-        )
+        self.assertEqual(scanner_hardware_1.step_id, scanner_scenario_step_types_message_step)
 
         # a back action reset the scenario to the previous_step
-        ret = scanner_hardware.scanner_call(
-            code, action="back", message="", transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="back", message="", transition_type="keyboard")
         self.assertEqual(
             (
                 "M",
@@ -142,29 +144,27 @@ class TestStockScanner(common.TransactionCase):
             ret,
         )
         # execute the 2 next steps
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message="", transition_type="keyboard"
-        )
-        self.assertEqual(
-            scanner_hardware_1.step_id, scanner_scenario_step_types_message_step
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message="", transition_type="keyboard")
+        self.assertEqual(scanner_hardware_1.step_id, scanner_scenario_step_types_message_step)
 
-        scanner_hardware.scanner_call(
-            code, action="action", message="", transition_type="keyboard"
-        )
-        scanner_scenario_step_types_list_step = self.env.ref(
-            "stock_scanner.scanner_scenario_step_step_types_list"
-        )
-        self.assertEqual(
-            scanner_hardware_1.step_id, scanner_scenario_step_types_list_step
-        )
+        scanner_hardware.scanner_call(code, action="action", message="", transition_type="keyboard")
+        scanner_scenario_step_types_list_step = self.env.ref("stock_scanner.scanner_scenario_step_step_types_list")
+        self.assertEqual(scanner_hardware_1.step_id, scanner_scenario_step_types_list_step)
 
         # at end of the scenario, the action end is called by the hardware
-        ret = scanner_hardware.scanner_call(
-            code, action="end", message="", transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="end", message="", transition_type="keyboard")
         # and a message is returned to the hardware
-        self.assertEqual(("F", [_("This scenario"), _("is finished"),], ""), ret)
+        self.assertEqual(
+            (
+                "F",
+                [
+                    self.env._("This scenario"),
+                    self.env._("is finished"),
+                ],
+                "",
+            ),
+            ret,
+        )
         self.assertFalse(scanner_hardware_1.scenario_id)
         self.assertFalse(scanner_hardware_1.step_id)
 
@@ -173,6 +173,7 @@ class TestStockScanner(common.TransactionCase):
         self.assertEqual(("L", ["Tutorial"], 0), ret)
 
     def test_login_logout(self):
+        """Enabling login shows the login scenario to the sentinel user, who can log in and out."""
         demo_uid = self.ref("base.user_demo")
         user_demo = self.env.ref("base.user_demo")
         sentinel_uid = self.ref("stock_scanner.user_sentinel")
@@ -180,16 +181,21 @@ class TestStockScanner(common.TransactionCase):
         scanner_scenario_logout = self.env.ref("stock_scanner.scanner_scenario_logout")
         scanner_scenario = self.env["scanner.scenario"]
         # by default the login/logout scenarii are hidden
-        res = scanner_scenario.search(
-            [("id", "in", (scanner_scenario_login.id, scanner_scenario_logout.id,)),]
-        )
+        res = scanner_scenario.search([
+            (
+                "id",
+                "in",
+                (
+                    scanner_scenario_login.id,
+                    scanner_scenario_logout.id,
+                ),
+            ),
+        ])
         self.assertFalse(res)
 
         # a cron used to manage the timeout of the session on the scanner
         # hardware is also disabled by default
-        hardware_reset_user_id_on_timeout = self.env.ref(
-            "stock_scanner.hardware_reset_user_id_on_timeout"
-        )
+        hardware_reset_user_id_on_timeout = self.env.ref("stock_scanner.hardware_reset_user_id_on_timeout")
         self.assertFalse(hardware_reset_user_id_on_timeout.active)
 
         # the demo scenario is available to users members of
@@ -202,64 +208,70 @@ class TestStockScanner(common.TransactionCase):
 
         code = scanner_hardware_1.code
         scanner_hardware = self.env["scanner.hardware"]
-        ret = scanner_hardware.sudo(demo_uid).scanner_call(code, action=None)
+        ret = scanner_hardware.with_user(demo_uid).scanner_call(code, action=None)
         self.assertEqual(("L", ["Tutorial"], 0), ret)
         # The technical user to use by sentinel when using the login/logout
         # functionality show nothings
-        ret = scanner_hardware.sudo(sentinel_uid).scanner_call(code, action=None)
+        ret = scanner_hardware.with_user(sentinel_uid).scanner_call(code, action=None)
         self.assertEqual(("L", [], 0), ret)
         # The login/lgout functionnality can be enabled by a configuration
-        wizard = self.env["res.config.settings"].create({"is_login_enabled": True,})
+        wizard = self.env["res.config.settings"].create({
+            "is_login_enabled": True,
+        })
         wizard.execute()
         # when the config is applied, the cron and the 2 dedicated scenarii
         # become actives
         self.assertTrue(hardware_reset_user_id_on_timeout.active)
-        res = scanner_scenario.search(
-            [("id", "in", (scanner_scenario_login.id, scanner_scenario_logout.id,)),]
-        )
+        res = scanner_scenario.search([
+            (
+                "id",
+                "in",
+                (
+                    scanner_scenario_login.id,
+                    scanner_scenario_logout.id,
+                ),
+            ),
+        ])
         self.assertEqual(2, len(res))
 
         # Once the functionality is enabled, the sentinel user show the login
         # scenario if not yer logged in
-        scanner_hardware = scanner_hardware.sudo(sentinel_uid)
+        scanner_hardware = scanner_hardware.with_user(sentinel_uid)
         ret = scanner_hardware.scanner_call(code, action=None)
         self.assertEqual(("L", [scanner_scenario_login.name], 0), ret)
 
         # Let's start the login scenario
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=scanner_scenario_login.name
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=scanner_scenario_login.name)
         # The first step is to enter the login name
         self.assertEqual(("T", ["Login ?"], 0), ret)
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=user_demo.login, transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=user_demo.login, transition_type="keyboard")
         # The second step is to enter the pwd
         self.assertEqual(("T", ["| Login demo", "Pwd ?"], 0), ret)
         # If we give a wrong password an error message is displayed
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message="wrong", transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message="wrong", transition_type="keyboard")
         self.assertEqual(("E", ["Wrong login/password"], True), ret)
 
         # And the step back is to return on the first step
-        ret = scanner_hardware.scanner_call(
-            code, action="back", message="", transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="back", message="", transition_type="keyboard")
         self.assertEqual(("T", ["Login ?"], 0), ret)
         # we enter the login
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=user_demo.login
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=user_demo.login)
         # and the right pwd
         ret = scanner_hardware.scanner_call(code, action="action", message="demo")
         # now we are logged in
-        self.assertEqual(("F", ["You are now authenticated as demo !",], 0), ret)
+        self.assertEqual(
+            (
+                "F",
+                [
+                    "You are now authenticated as demo !",
+                ],
+                0,
+            ),
+            ret,
+        )
         # once we are logged in, the hardware display the available scenarii
         # including the logout one
-        ret = scanner_hardware.scanner_call(
-            code, action="menu", message=None, transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="menu", message=None, transition_type="keyboard")
         self.assertEqual(("L", ["Tutorial", "Logout"], 0), ret)
 
         # if we logout, only the login scenario will be displayed again
@@ -270,20 +282,17 @@ class TestStockScanner(common.TransactionCase):
             transition_type="keyboard",
         )
         self.assertEqual(("C", ["", "Do you really want to logout?"], 0), ret)
-        ret = scanner_hardware.scanner_call(
-            code, action="action", message=True, transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="action", message=True, transition_type="keyboard")
         self.assertEqual(("F", ["You are now logged out", "Bye !"], 0), ret)
-        ret = scanner_hardware.scanner_call(
-            code, action="menu", message=None, transition_type="keyboard"
-        )
+        ret = scanner_hardware.scanner_call(code, action="menu", message=None, transition_type="keyboard")
         self.assertEqual(("L", [scanner_scenario_login.name], 0), ret)
 
     def test_login_timeout(self):
-        """Test the wizard used to reset the user on the hardware when
-        time is out"""
+        """A logged in user is reset on the hardware only once the session delay has elapsed."""
         # The login/lgout functionnality can be enabled by configuration.
-        wizard = self.env["res.config.settings"].create({"is_login_enabled": True,})
+        wizard = self.env["res.config.settings"].create({
+            "is_login_enabled": True,
+        })
         wizard.execute()
         scanner_hardware_1 = self.env.ref("stock_scanner.scanner_hardware_1")
 
@@ -311,12 +320,10 @@ class TestStockScanner(common.TransactionCase):
 
         # we update the last_call_dt with an older value to simulate
         # the elapsed time without activity
-        timeout_last_call_td = fields.Datetime.from_string(
-            scanner_hardware_1.last_call_dt
-        ) - datetime.timedelta(wizard.session_timeout_delay + 1)
-        scanner_hardware_1.last_call_dt = fields.Datetime.to_string(
-            timeout_last_call_td
+        timeout_last_call_td = fields.Datetime.from_string(scanner_hardware_1.last_call_dt) - datetime.timedelta(
+            wizard.session_timeout_delay + 1
         )
+        scanner_hardware_1.last_call_dt = fields.Datetime.to_string(timeout_last_call_td)
 
         # a new call to the session timeout will reset the connected user
         scanner_hardware_1.timeout_session()

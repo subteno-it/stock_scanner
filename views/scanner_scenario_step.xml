@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Copyright 2026 Subteno (https://www.subteno.com)
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+-->
 <odoo>
     <record id="view_scanner_scenario_step_search" model="ir.ui.view">
         <field name="name">scanner.scenario.step.search</field>
@@ -48,17 +52,8 @@
                     </group>
                     <notebook colspan="4">
                         <page string="Code">
-                            <separator
-                                string="Enter the python code here"
-                                colspan="4"
-                            />
-                            <field
-                                name="python_code"
-                                colspan="4"
-                                nolabel="1"
-                                widget="ace"
-                                options="{'mode': 'python'}"
-                            />
+                            <separator string="Enter the python code here" colspan="4" />
+                            <field name="python_code" colspan="4" nolabel="1" widget="ace" options="{'mode': 'python'}" />
                         </page>
                         <page string="Transition">
                             <separator string="Outgoing transitions" colspan="4" />
@@ -75,10 +70,7 @@
                                     <group colspan="4" col="4">
                                         <field name="name" />
                                         <field name="sequence" />
-                                        <field
-                                            name="to_id"
-                                            domain="[('scenario_id','=', parent.scenario_id)]"
-                                        />
+                                        <field name="to_id" domain="[('scenario_id','=', parent.scenario_id)]" />
                                         <field name="condition" colspan="4" />
                                         <field name="transition_type" />
                                         <field name="tracer" />
@@ -100,10 +92,7 @@
                                     <group colspan="4" col="4">
                                         <field name="name" />
                                         <field name="sequence" />
-                                        <field
-                                            name="from_id"
-                                            domain="[('scenario_id','=', parent.scenario_id)]"
-                                        />
+                                        <field name="from_id" domain="[('scenario_id','=', parent.scenario_id)]" />
                                         <field name="condition" colspan="4" />
                                         <field name="transition_type" />
                                         <field name="tracer" />
@@ -113,16 +102,8 @@
                             </field>
                         </page>
                         <page string="Scenario Note">
-                            <separator
-                                string="Add note, modification date, etc."
-                                colspan="4"
-                            />
-                            <field
-                                name="scenario_notes"
-                                nolabel="1"
-                                widget="ace"
-                                options="{'mode': 'python'}"
-                            />
+                            <separator string="Add note, modification date, etc." colspan="4" />
+                            <field name="scenario_notes" nolabel="1" widget="ace" options="{'mode': 'python'}" />
                         </page>
                     </notebook>
                 </sheet>
@@ -137,28 +118,17 @@
         <field name="domain">[]</field>
         <field name="context">{}</field>
     </record>
-    <record
-        model="ir.actions.act_window.view"
-        id="act_open_scanner_scenario_step_view_form"
-    >
+    <record model="ir.actions.act_window.view" id="act_open_scanner_scenario_step_view_form">
         <field name="act_window_id" ref="act_open_scanner_scenario_step_view" />
         <field name="sequence" eval="20" />
         <field name="view_mode">form</field>
         <field name="view_id" ref="view_scanner_scenario_step_form" />
     </record>
-    <record
-        model="ir.actions.act_window.view"
-        id="act_open_scanner_scenario_step_view_tree"
-    >
+    <record model="ir.actions.act_window.view" id="act_open_scanner_scenario_step_view_tree">
         <field name="act_window_id" ref="act_open_scanner_scenario_step_view" />
         <field name="sequence" eval="10" />
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_scanner_scenario_step_tree" />
     </record>
-    <menuitem
-        id="menu_scanner_scenario_step"
-        parent="menu_scanner_configuration"
-        sequence="30"
-        action="act_open_scanner_scenario_step_view"
-    />
+    <menuitem id="menu_scanner_scenario_step" parent="menu_scanner_configuration" sequence="30" action="act_open_scanner_scenario_step_view" />
 </odoo>

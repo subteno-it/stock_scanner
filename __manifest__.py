@@ -1,19 +1,19 @@
 # © 2011-2015 Sylvain Garancher <sylvain.garancher@syleam.fr>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 {
     "name": "Stock Scanner",
     "summary": "Allows managing barcode readers with simple scenarios",
-    "version": "19.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Generic Modules/Inventory Control",
-    "website": "https://github.com/OCA/stock-logistics-barcode",
-    "author": "Subteno IT," "ACSONE SA/NV," "Odoo Community Association (OCA)",
-    "license": "AGPL-3",
+    "website": "https://subteno.com",
+    "author": "Subteno IT",
+    "license": "LGPL-3",
     "installable": True,
-    "depends": ["base_sparse_field", "stock",],
+    "depends": ["base_sparse_field", "stock"],
     "data": [
         "security/stock_scanner_security.xml",
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "data/stock_scanner.xml",
         "data/ir_cron.xml",
         "data/scenarios/Login/Login.scenario",

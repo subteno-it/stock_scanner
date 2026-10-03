@@ -1,11 +1,13 @@
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 # © 2011 Sylvain Garancher <sylvain.garancher@syleam.fr>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import logging
 import sys
 import traceback
 
-from odoo import _, api, exceptions, fields, models
+from odoo import api, exceptions, fields, models
 
 from .common import PYTHON_CODE_DEFAULT
 
@@ -13,18 +15,24 @@ logger = logging.getLogger("stock_scanner")
 
 
 class ScannerScenarioStep(models.Model):
+    """Node of a scenario graph holding the Python code executed when the step is reached."""
+
     _name = "scanner.scenario.step"
     _description = "Step for scenario"
 
     # ===========================================================================
     # COLUMNS
     # ===========================================================================
-    name = fields.Char(string="Name", required=False, help="Name of the step.")
+    name = fields.Char(
+        string="Name",
+        required=False,
+        help="Name of the step.",
+    )
     scenario_id = fields.Many2one(
-        comodel_name="scanner.scenario",
         string="Scenario",
-        required=True,
+        comodel_name="scanner.scenario",
         ondelete="cascade",
+        required=True,
         help="Scenario for this step.",
     )
     step_start = fields.Boolean(
@@ -48,15 +56,15 @@ class ScannerScenarioStep(models.Model):
         help="Check this to prevent returning back this step.",
     )
     out_transition_ids = fields.One2many(
+        string="Outgoing transitions",
         comodel_name="scanner.scenario.transition",
         inverse_name="from_id",
-        string="Outgoing transitions",
         help="Transitions which goes to this step.",
     )
     in_transition_ids = fields.One2many(
+        string="Incoming transitions",
         comodel_name="scanner.scenario.transition",
         inverse_name="to_id",
-        string="Incoming transitions",
         help="Transitions which goes to the next step.",
     )
     python_code = fields.Text(
@@ -64,12 +72,20 @@ class ScannerScenarioStep(models.Model):
         default=PYTHON_CODE_DEFAULT,
         help="Python code to execute.",
     )
-    scenario_notes = fields.Text(related="scenario_id.notes", readonly=False)
+    scenario_notes = fields.Text(
+        related="scenario_id.notes",
+        readonly=False,
+    )
 
     @api.constrains("python_code")
     def _check_python_code_syntax(self):
-        """
-        Syntax check the python code of a step
+        """Reject steps whose Python code does not compile, before it fails on a scanner.
+
+        Raises:
+            ValidationError: With the line, offset and message of the syntax error.
+
+        Returns:
+            bool: Always True when the code is valid.
         """
         for step in self:
             try:
@@ -78,16 +94,20 @@ class ScannerScenarioStep(models.Model):
                 logger.error(
                     "".join(
                         traceback.format_exception(
-                            sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2],
+                            sys.exc_info()[0],
+                            sys.exc_info()[1],
+                            sys.exc_info()[2],
                         )
                     )
                 )
                 raise exceptions.ValidationError(
-                    _(
-                        'Error in python code for step "%s"'
-                        " at line %d, offset %d:\n%s"
+                    self.env._('Error in python code for step "%s" at line %d, offset %d:\n%s')
+                    % (
+                        step.name,
+                        exception.lineno,
+                        exception.offset,
+                        exception.msg,
                     )
-                    % (step.name, exception.lineno, exception.offset, exception.msg,)
-                )
+                ) from exception
 
         return True

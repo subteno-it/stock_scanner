@@ -1,5 +1,7 @@
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 # © 2011 Sylvain Garancher <sylvain.garancher@syleam.fr>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import datetime
 import logging
@@ -7,10 +9,11 @@ import random
 import time
 
 from psycopg2 import OperationalError, errorcodes
-from odoo.tools.translate import get_translation
-from odoo import _, api, exceptions, fields, models
-from odoo.tools.misc import html_escape, ustr
+
+from odoo import api, exceptions, fields, models
+from odoo.tools.misc import html_escape
 from odoo.tools.safe_eval import safe_eval
+from odoo.tools.translate import get_translation
 
 _logger = logging.getLogger("stock_scanner")
 
@@ -34,21 +37,27 @@ MAX_TRIES_ON_CONCURRENCY_FAILURE = 5
 
 
 class ScannerHardware(models.Model):
+    """Physical or virtual barcode terminal, holding its running scenario, current step and temporary values."""
+
     _name = "scanner.hardware"
     _description = "Scanner Hardware"
 
     @api.model
     def _colors_get(self):
-        """Return the list of available colors with translations."""
+        """Return the selectable terminal colors with translated labels.
+
+        Returns:
+            list: Selection tuples (curses color name, label).
+        """
         return [
-            ("black", _("Black")),
-            ("blue", _("Blue")),
-            ("cyan", _("Cyan")),
-            ("green", _("Green")),
-            ("magenta", _("Magenta")),
-            ("red", _("Red")),
-            ("white", _("White")),
-            ("yellow", _("Yellow")),
+            ("black", self.env._("Black")),
+            ("blue", self.env._("Blue")),
+            ("cyan", self.env._("Cyan")),
+            ("green", self.env._("Green")),
+            ("magenta", self.env._("Magenta")),
+            ("red", self.env._("Red")),
+            ("white", self.env._("White")),
+            ("yellow", self.env._("Yellow")),
         ]
 
     # ===========================================================================
@@ -57,132 +66,154 @@ class ScannerHardware(models.Model):
     name = fields.Char(
         string="Name",
         required=True,
-        help="The name of the hardware.")
+        help="The name of the hardware.",
+    )
     active = fields.Boolean(
         string="Active",
-        default=True)
+        default=True,
+        help="",
+    )
     code = fields.Char(
         string="Code",
         required=True,
-        help="The code of this hardware.")
+        help="The code of this hardware.",
+    )
     log_enabled = fields.Boolean(
         string="Log enabled",
         default=False,
-        help="Enable logging messages from scenarios.")
+        help="Enable logging messages from scenarios.",
+    )
     screen_width = fields.Integer(
         string="Screen Width",
         default=20,
         required=False,
-        help="Width of the terminal's screen.")
+        help="Width of the terminal's screen.",
+    )
     screen_height = fields.Integer(
         string="Screen Height",
         default=4,
-        help="Height of the terminal's screen.")
+        help="Height of the terminal's screen.",
+    )
     warehouse_id = fields.Many2one(
         string="Warehouse",
         comodel_name="stock.warehouse",
-        required=True,
         ondelete="restrict",
-        help="Warehouse where is located this hardware.")
+        required=True,
+        help="Warehouse where is located this hardware.",
+    )
     user_id = fields.Many2one(
         string="User",
         comodel_name="res.users",
         ondelete="restrict",
-        help="Allow to define an other user for execute all scenarios with "
-        "that scanner instead of default user.")
+        help="Allow to define an other user for execute all scenarios with that scanner instead of default user.",
+    )
     last_call_dt = fields.Datetime(
         string="Last call",
-        help="Date and time of the last call to the system done by the scanner.")
+        help="Date and time of the last call to the system done by the scanner.",
+    )
     scenario_id = fields.Many2one(
         string="Scenario",
         comodel_name="scanner.scenario",
-        readonly=True,
         ondelete="restrict",
-        help="Scenario used for this hardware.")
+        readonly=True,
+        help="Scenario used for this hardware.",
+    )
     step_id = fields.Many2one(
         string="Current Step",
         comodel_name="scanner.scenario.step",
-        readonly=True,
         ondelete="restrict",
-        help="Current step for this hardware.")
+        readonly=True,
+        help="Current step for this hardware.",
+    )
     step_history_ids = fields.One2many(
+        string="Steps History",
         comodel_name="scanner.hardware.step.history",
         inverse_name="hardware_id",
-        string="Steps History",
         readonly=True,
-        help="History of all steps executed by this hardware during the current scenario.")
+        help="History of all steps executed by this hardware during the current scenario.",
+    )
     reference_document = fields.Integer(
         string="Reference",
         readonly=True,
-        help="ID of the reference document.")
+        help="ID of the reference document.",
+    )
     base_fg_color = fields.Selection(
         string="Base - Text Color",
         selection="_colors_get",
-        required=True,
         default="white",
-        help="Default color for the text.")
-    base_bg_color = fields.Selection(
-        selection="_colors_get",
-        string="Base - Background Color",
         required=True,
+        help="Default color for the text.",
+    )
+    base_bg_color = fields.Selection(
+        string="Base - Background Color",
+        selection="_colors_get",
         default="blue",
-        help="Default color for the background.")
+        required=True,
+        help="Default color for the background.",
+    )
     info_fg_color = fields.Selection(
         string="Info - Text Color",
         selection="_colors_get",
-        required=True,
         default="yellow",
-        help="Color for the info text.")
+        required=True,
+        help="Color for the info text.",
+    )
     info_bg_color = fields.Selection(
         string="Info - Background Color",
         selection="_colors_get",
-        required=True,
         default="blue",
-        help="Color for the info background.")
+        required=True,
+        help="Color for the info background.",
+    )
     error_fg_color = fields.Selection(
         string="Error - Text Color",
         selection="_colors_get",
-        required=True,
         default="yellow",
-        help="Color for the error text.")
-    error_bg_color = fields.Selection(
-        selection="_colors_get",
-        string="Error - Background Color",
         required=True,
+        help="Color for the error text.",
+    )
+    error_bg_color = fields.Selection(
+        string="Error - Background Color",
+        selection="_colors_get",
         default="red",
+        required=True,
         help="Color for the error background.",
     )
-    tmp_values = fields.Serialized(readonly=True)
+    tmp_values = fields.Serialized(
+        string="Tmp Values",
+        readonly=True,
+        help="",
+    )
     tmp_values_display = fields.Html(
+        string="Tmp Values Display",
         compute="_compute_tmp_values_display",
         help="Debug tmp values",
     )
 
     @api.depends("tmp_values")
     def _compute_tmp_values_display(self):
+        """Render the temporary values as an HTML table so they can be inspected on the form."""
         for rec in self:
             txt = [
                 "<table><tr>",
-                "<th>" + html_escape(_("Key")) + "</th>",
-                "<th>" + html_escape(_("Value")) + "</th></tr>",
-                ]
+                "<th>" + html_escape(self.env._("Key")) + "</th>",
+                "<th>" + html_escape(self.env._("Value")) + "</th></tr>",
+            ]
             for key in sorted(rec.tmp_values.keys()):
                 val = rec.tmp_values[key]
-                txt.append(
-                    "<tr><td>%s</td><td>%s</td></tr>"
-                    % (html_escape(key), html_escape(val))
-                )
+                txt.append(f"<tr><td>{html_escape(key)}</td><td>{html_escape(val)}</td></tr>")
             txt.append("</table>")
             rec.tmp_values_display = "".join(txt)
 
     @api.model
     def timeout_session(self):
-        timeout_delay = self.env["ir.config_parameter"].get_param(
-            "hardware_scanner_session_timeout", 1800
-        )  # seconds
-        expired_dt = datetime.datetime.now() - datetime.timedelta(
-            seconds=int(timeout_delay)
-        )
+        """Log out and reset terminals whose last call is older than the session timeout.
+
+        Meant to be run by a cron. The delay comes from the ``hardware_scanner_session_timeout`` parameter
+        (seconds, 1800 by default).
+        """
+        timeout_delay = self.env["ir.config_parameter"].get_int("hardware_scanner_session_timeout", 1800)  # seconds
+        expired_dt = datetime.datetime.now() - datetime.timedelta(seconds=timeout_delay)
         expired_str = fields.Datetime.to_string(expired_dt)
         terminals = self.search([("last_call_dt", "<", expired_str)])
         if terminals:
@@ -191,27 +222,52 @@ class ScannerHardware(models.Model):
 
     @api.model
     def _get_terminal(self, terminal_number):
+        """Find the terminal matching a code.
+
+        Args:
+            terminal_number: Code of the terminal.
+
+        Returns:
+            recordset: The single matching terminal.
+
+        Raises:
+            ValueError: If no terminal or several terminals match.
+        """
         terminal = self.search([("code", "=", terminal_number)])
         terminal.ensure_one()
         return terminal
 
     @api.model
     def scanner_check(self, terminal_number):
+        """Tell the terminal whether a scenario is already running, e.g. to resume after a disconnection.
+
+        Args:
+            terminal_number: Code of the terminal.
+
+        Returns:
+            tuple | bool: (scenario id, scenario name) of the running scenario, False when there is none.
+        """
         terminal = self._get_terminal(terminal_number)
         uid = terminal.user_id.id or self.env.uid
         terminal = terminal.with_user(uid)
-        return (
-            terminal.scenario_id
-            and (terminal.scenario_id.id, terminal.scenario_id.name)
-            or False
-        )
+        return terminal.scenario_id and (terminal.scenario_id.id, terminal.scenario_id.name) or False
 
     @api.model
-    def scanner_call(
-        self, terminal_number, action, message=False, transition_type="keyboard"
-    ):
-        """
-        This method is called by the barcode reader,
+    def scanner_call(self, terminal_number, action, message=False, transition_type="keyboard"):
+        """Entry point called by the barcode reader for every user interaction.
+
+        The call is executed as the user assigned to the terminal (after login), otherwise as the current user.
+        The terminal protocol answer is a tuple (action code, list of message lines, value), for example
+        ``("M", ["text"], 0)``.
+
+        Args:
+            terminal_number: Code of the terminal.
+            action: Requested action ("screen_size", "screen_colors", "action", "restart", "back" or "end").
+            message: Text typed or scanned on the terminal.
+            transition_type: Origin of the input, "keyboard" or "scanner".
+
+        Returns:
+            tuple: (action code, message lines, value) to display on the terminal.
         """
         # Retrieve the terminal id
         terminal = self._get_terminal(terminal_number)
@@ -220,11 +276,20 @@ class ScannerHardware(models.Model):
             terminal.last_call_dt = fields.Datetime.now()
         # Change uid if defined on the stock scanner
         uid = terminal.user_id.id or self.env.uid
-        return terminal.with_user(uid)._scanner_call(
-            action, message=message, transition_type=transition_type
-        )
+        return terminal.with_user(uid)._scanner_call(action, message=message, transition_type=transition_type)
 
     def _scanner_call(self, action, message=False, transition_type="keyboard"):
+        """Dispatch a terminal request, once the terminal and the user have been resolved.
+
+        Args:
+            action: Requested action, see ``scanner_call``.
+            message: Text typed or scanned on the terminal.
+            transition_type: Origin of the input, "keyboard" or "scanner".
+
+        Returns:
+            tuple: (action code, message lines, value); "L" lists menu entries, "F" ends the scenario, "R"/"U"
+            report an error or an unknown action.
+        """
         self.ensure_one()
         scanner_scenario_obj = self.env["scanner.scenario"]
         # Retrieve the terminal screen size
@@ -259,23 +324,19 @@ class ScannerHardware(models.Model):
                 return self._unknown_action(message)
             # No action to do
             else:
-                _logger.info(
-                    "[%s] Action : %s (no current scenario)", self.code, message
-                )
-                scenario_ids = scanner_scenario_obj.search(
-                    [
-                        ("name", "=", message),
-                        ("type", "=", "menu"),
-                        "|",
-                        ("warehouse_ids", "=", False),
-                        ("warehouse_ids", "in", [self.warehouse_id.id]),
-                    ]
-                )
+                _logger.info("[%s] Action : %s (no current scenario)", self.code, message)
+                scenario_ids = scanner_scenario_obj.search([
+                    ("name", "=", message),
+                    ("type", "=", "menu"),
+                    "|",
+                    ("warehouse_ids", "=", False),
+                    ("warehouse_ids", "in", [self.warehouse_id.id]),
+                ])
                 if scenario_ids:
                     scenarios = self._scenario_list(parent_id=scenario_ids.id)
                     if scenarios:
                         menu_name = scenario_ids[0].name
-                        return ("L", ["|%s" % menu_name] + scenarios, 0)
+                        return ("L", [f"|{menu_name}"] + scenarios, 0)
                 return self._scenario_save(message, transition_type)
 
         # Reload current step
@@ -303,15 +364,15 @@ class ScannerHardware(models.Model):
         # End required
         elif action == "end":
             # Empty the values
-            _logger.info("[%s] End scenario request" % self.code)
+            _logger.info(f"[{self.code}] End scenario request")
             self.sudo().empty_scanner_values()
 
-            return ("F", [_("This scenario"), _("is finished")], "")
+            return ("F", [self.env._("This scenario"), self.env._("is finished")], "")
 
         # If the terminal is not attached to a scenario, send the menu
         # (scenario list)
         if not self.scenario_id:
-            _logger.info("[%s] No running scenario" % self.code)
+            _logger.info(f"[{self.code}] No running scenario")
             scenarios = self._scenario_list(message)
             return ("L", scenarios, 0)
 
@@ -319,8 +380,13 @@ class ScannerHardware(models.Model):
         return self._send_error(["Unknown action"])
 
     def _send_error(self, message):
-        """
-        Sends an error message
+        """Reset the terminal and build an error answer, so that the user restarts from the menu.
+
+        Args:
+            message: Lines to display.
+
+        Returns:
+            tuple: ("R", message, 0).
         """
         self.ensure_one()
         self.sudo().empty_scanner_values()
@@ -328,81 +394,125 @@ class ScannerHardware(models.Model):
 
     @api.model
     def _unknown_action(self, message):
-        """
-        Sends an unknown action message
+        """Build the answer for an action that cannot be handled in the current state.
+
+        Args:
+            message: Lines to display.
+
+        Returns:
+            tuple: ("U", message, 0).
         """
         return ("U", message, 0)
 
     def empty_scanner_values(self):
+        """Reset the scenario, step, history, reference document and temporary values of the terminal.
+
+        The ORM is used on purpose (not SQL), since SQL resets are discouraged in production.
+
+        Returns:
+            bool: Always True.
         """
-        This method empty all temporary values, scenario, step and
-        reference_document
-        Because if we want reset term when error we must use sql query,
-        it is bad in production
-        """
-        self.write(
-            {
-                "scenario_id": False,
-                "step_id": False,
-                "step_history_ids": [
-                    (2, history.id) for history in self.step_history_ids
-                ],
-                "reference_document": 0,
-                "tmp_values": {},
-            }
-        )
+        self.write({
+            "scenario_id": False,
+            "step_id": False,
+            "step_history_ids": [(2, history.id) for history in self.step_history_ids],
+            "reference_document": 0,
+            "tmp_values": {},
+        })
         return True
 
     @api.model
     def scanner_end(self, numterm=None):
-        """
-        End the end barcode is read, we execute this step
+        """Run the "end" action, called when the end barcode is read.
+
+        Args:
+            numterm: Code of the terminal.
+
+        Returns:
+            tuple: Terminal protocol answer, ("F", lines, "") when the scenario is finished.
         """
         return self.scanner_call(terminal_number=numterm, action="end")
 
     @api.model
     def check_credentials(self, login, password):
+        """Check a login and password without opening an interactive session.
+
+        Args:
+            login: Login of the user.
+            password: Password of the user.
+
+        Returns:
+            int | bool: Id of the user when the credentials are valid, False when access is denied. An unknown
+            login returns the empty user id (falsy).
+        """
         res_users = self.env["res.users"]
         try:
-            user = res_users.search([("login", "=", login)])
+            # Sentinel technical users cannot read res.users, as in res.users._login
+            user = res_users.sudo().search([("login", "=", login)], limit=1)
             if user:
-                res_users.with_user(user)._check_credentials(password)
+                user.with_user(user).sudo()._check_credentials(
+                    {"type": "password", "login": login, "password": password},
+                    {"interactive": False},
+                )
             return user.id
         except exceptions.AccessDenied:
             return False
 
     def login(self, login, password):
-        """This method assign the uid associated to login
-        as current user of the hardware.
-        The method MUST be called on the last step since the login
-        scenario will no more be visible by the current user once it will
-        be assigned this one
+        """Assign the user matching the credentials as the user of the terminal.
+
+        It MUST be called on the last step of the login scenario, since that scenario is no longer visible
+        by the current user once the new user is assigned.
+
+        Args:
+            login: Login of the user.
+            password: Password of the user.
         """
         self.ensure_one()
         uid = self.check_credentials(login, password)
         if uid:
-            self.write(
-                {"user_id": uid, "last_call_dt": fields.Datetime.now(),}
-            )
+            self.write({
+                "user_id": uid,
+                "last_call_dt": fields.Datetime.now(),
+            })
 
     def logout(self):
-        self.write(
-            {"user_id": False, "last_call_dt": False,}
-        )
+        """Detach the user from the terminal.
+
+        Returns:
+            bool: Always True.
+        """
+        self.write({
+            "user_id": False,
+            "last_call_dt": False,
+        })
         return True
 
     def _memorize(self, scenario_id, step_id, obj=None):
-        """
-        After affect a scenario to a scanner, we must memorize it
-        If obj is specify, save it as well (ex: res.partner,12)
+        """Store the scenario and step the terminal is running.
+
+        Args:
+            scenario_id: Id of the running scenario.
+            step_id: Id of the current step.
+            obj: Unused, kept for compatibility.
         """
         self.ensure_one()
-        self.write(
-            {"scenario_id": scenario_id, "step_id": step_id,}
-        )
+        self.write({
+            "scenario_id": scenario_id,
+            "step_id": step_id,
+        })
 
     def _get_step_translation_module(self, step):
-        """Return the module owning this step/scenario for code translations."""
+        """Find the module whose translations apply to the code of a step.
+
+        The module of the step XML-ID is preferred, then the one of its scenario.
+
+        Args:
+            step: Step being executed.
+
+        Returns:
+            str | None: Technical name of the module, None when neither has an XML-ID.
+        """
         self.ensure_one()
         imd_obj = self.env["ir.model.data"].sudo()
 
@@ -429,17 +539,30 @@ class ScannerHardware(models.Model):
         return None
 
     def _build_step_translator(self, step):
-        """Build a translator bound to the step's module for exec()-based code."""
-        module = self._get_step_translation_module(step)
-        lang = (
-            self.env.context.get("lang")
-            or self.env.lang
-            or self.user_id.lang
-            or self.env.user.lang
-            or "en_US"
-        )
+        """Build the ``_()`` function exposed to step code, which is run through ``exec`` and so cannot use the
+        standard translation machinery.
 
-        def _translate(source, *args, **kwargs):
+        Args:
+            step: Step being executed.
+
+        Returns:
+            callable: Function translating a source string and interpolating positional or keyword arguments.
+            A badly formatted translation falls back to the source string and is logged.
+        """
+        module = self._get_step_translation_module(step)
+        lang = self.env.context.get("lang") or self.env.lang or self.user_id.lang or self.env.user.lang or "en_US"
+
+        def _translate(source, /, *args, **kwargs):  # Positional-only: a placeholder may be named "source"
+            """Translate a source string and interpolate its arguments.
+
+            Args:
+                source: Source string, possibly with ``%`` placeholders.
+                *args: Positional placeholders values.
+                **kwargs: Named placeholders values.
+
+            Returns:
+                str: The translated and formatted string.
+            """
             translation = get_translation(module, lang, source, ())
             if args or kwargs:
                 try:
@@ -456,12 +579,21 @@ class ScannerHardware(models.Model):
 
         return _translate
 
-    def _do_scenario_save(
-        self, message, transition_type, scenario_id=None, step_id=None
-    ):
-        """
-        Save the scenario on this terminal and execute the current step
-        Return the action to the terminal
+    def _do_scenario_save(self, message, transition_type, scenario_id=None, step_id=None):
+        """Move the terminal to the next step and execute it.
+
+        Handles starting a scenario from its name, following the first transition whose condition is true,
+        and the "back" and "restart" requests through the step history. The step code can set ``act``,
+        ``res`` and ``val`` to define the answer.
+
+        Args:
+            message: Text typed or scanned on the terminal.
+            transition_type: "keyboard", "scanner", "back", "restart" or "none".
+            scenario_id: Id of the running scenario.
+            step_id: Id of the current step.
+
+        Returns:
+            tuple: (action code, message lines, value) returned by the executed step.
         """
         self.ensure_one()
         scanner_scenario_obj = self.env["scanner.scenario"]
@@ -470,11 +602,7 @@ class ScannerHardware(models.Model):
 
         tracer = ""
 
-        if (
-            transition_type == "restart"
-            or transition_type == "back"
-            and terminal.scenario_id.id
-        ):
+        if transition_type == "restart" or transition_type == "back" and terminal.scenario_id.id:
             if terminal.step_id.no_back:
                 step_id = terminal.step_id.id
             else:
@@ -502,40 +630,39 @@ class ScannerHardware(models.Model):
             # Retrieve the terminal's warehouse
             terminal_warehouse_ids = terminal.warehouse_id.ids
             # Retrieve the warehouse's scenarios
-            scenario_ids = scanner_scenario_obj.search(
-                [
-                    ("name", "=", message),
-                    ("type", "=", "scenario"),
-                    "|",
-                    ("warehouse_ids", "=", False),
-                    ("warehouse_ids", "in", terminal_warehouse_ids),
-                ]
-            )
+            scenario_ids = scanner_scenario_obj.search([
+                ("name", "=", message),
+                ("type", "=", "scenario"),
+                "|",
+                ("warehouse_ids", "=", False),
+                ("warehouse_ids", "in", terminal_warehouse_ids),
+            ])
 
             # If at least one scenario was found, pick the start step of the
             # first
             if scenario_ids:
                 scenario_id = scenario_ids[0].id
-                step_ids = scanner_step_obj.search(
-                    [("scenario_id", "=", scenario_id), ("step_start", "=", True),]
-                )
+                step_ids = scanner_step_obj.search([
+                    ("scenario_id", "=", scenario_id),
+                    ("step_start", "=", True),
+                ])
 
                 # No start step found on the scenario, return an error
                 if not step_ids:
-                    return self._send_error([_("No start step found on the scenario"),])
+                    return self._send_error([
+                        self.env._("No start step found on the scenario"),
+                    ])
 
                 step_id = step_ids[0].id
                 # Store the first step in terminal history
-                terminal.step_history_ids.create(
-                    {
-                        "hardware_id": terminal.id,
-                        "step_id": step_id,
-                        "message": repr(message),
-                    }
-                )
+                terminal.step_history_ids.create({
+                    "hardware_id": terminal.id,
+                    "step_id": step_id,
+                    "message": repr(message),
+                })
 
             else:
-                return self._send_error([_("Scenario not found")])
+                return self._send_error([self.env._("Scenario not found")])
 
         elif transition_type not in ("back", "none", "restart"):
             # Retrieve outgoing transitions from the current step
@@ -547,9 +674,7 @@ class ScannerHardware(models.Model):
                 step_id = False
                 ctx = {
                     "context": self.env.context,
-                    "model": self.env[
-                        transition.from_id.scenario_id.model_id.sudo().model
-                    ],
+                    "model": self.env[transition.from_id.scenario_id.model_id.sudo().model],
                     "cr": self.env.cr,
                     "env": self.env,
                     "uid": self.env.uid,
@@ -577,17 +702,14 @@ class ScannerHardware(models.Model):
 
                 # Store the old step id if we are on a back step
                 if transition.to_id.step_back and (
-                    not terminal.step_history_ids
-                    or terminal.step_history_ids[-1].transition_id != transition
+                    not terminal.step_history_ids or terminal.step_history_ids[-1].transition_id != transition
                 ):
-                    terminal.step_history_ids.create(
-                        {
-                            "hardware_id": terminal.id,
-                            "step_id": transition.to_id.id,
-                            "transition_id": transition.id,
-                            "message": repr(message),
-                        }
-                    )
+                    terminal.step_history_ids.create({
+                        "hardware_id": terminal.id,
+                        "step_id": transition.to_id.id,
+                        "transition_id": transition.id,
+                        "message": repr(message),
+                    })
 
                 # Valid transition found, stop searching
                 break
@@ -595,9 +717,11 @@ class ScannerHardware(models.Model):
             # No step found, return an error
             if not step_id:
                 terminal.log("No valid transition found !")
-                return self._unknown_action(
-                    [_("Please contact"), _("your"), _("administrator"), _("No valid transition found !")]
-                )
+                return self._unknown_action([
+                    self.env._("Please contact"),
+                    self.env._("your"),
+                    self.env._("administrator"),
+                ])
 
         # Memorize the current step
         terminal._memorize(scenario_id, step_id)
@@ -622,10 +746,10 @@ class ScannerHardware(models.Model):
             "_": step_translate,
         }
 
-        terminal.log("Executing step %d : %s" % (step_id, step.name))
-        terminal.log("Message : %s" % repr(message))
+        terminal.log(f"Executing step {step_id} : {step.name}")
+        terminal.log(f"Message : {message!r}")
         if tracer:
-            terminal.log("Tracer : %s" % repr(tracer))
+            terminal.log(f"Tracer : {tracer!r}")
 
         exec(step.python_code, ld)
         if step.step_stop:
@@ -638,55 +762,63 @@ class ScannerHardware(models.Model):
         )
 
     def _scenario_save(self, message, transition_type, scenario_id=None, step_id=None):
-        """
-        Save the scenario on this terminal, handling transient errors by
-        retrying the same step
-        Return the action to the terminal
+        """Run ``_do_scenario_save`` in a savepoint and turn failures into terminal answers.
+
+        The savepoint discards the changes of a failing step. Serialization and lock errors are retried with a
+        random exponential back-off, user errors are shown with the "back" requirement, other errors are hidden
+        from the terminal and reset it. An "A" (automatic) answer immediately triggers the next action.
+
+        Args:
+            message: Text typed or scanned on the terminal.
+            transition_type: "keyboard", "scanner", "back", "restart" or "none".
+            scenario_id: Id of the running scenario.
+            step_id: Id of the current step.
+
+        Returns:
+            tuple: (action code, message lines, value) to display on the terminal.
         """
         self.ensure_one()
         result = ("M", ["TEST"], False)
         tries = 0
         while True:
             try:
-                result = self._do_scenario_save(
-                    message, transition_type, scenario_id=scenario_id, step_id=step_id,
-                )
+                with self.env.cr.savepoint():
+                    result = self._do_scenario_save(
+                        message,
+                        transition_type,
+                        scenario_id=scenario_id,
+                        step_id=step_id,
+                    )
                 break
             except OperationalError as e:
                 # Automatically retry the typical transaction serialization
                 # errors
                 self.env.cr.rollback()
                 if e.pgcode not in PG_CONCURRENCY_ERRORS_TO_RETRY:
-                    error_msg = f"Database error: {e.pgcode or 'Unknown'}"
-                    _logger.warning(
-                        "[%s] OperationalError: %s", self.code, error_msg, exc_info=True
-                    )
-                    result = ("R", [error_msg, "Please contact", "your administrator"], 0)
+                    _logger.warning("[%s] OperationalError", self.code, exc_info=True)
+                    result = ("R", ["Please contact", "your", "administrator"], 0)
                     break
                 if tries >= MAX_TRIES_ON_CONCURRENCY_FAILURE:
                     _logger.warning(
-                        "[%s] Concurrent transaction - "
-                        "OperationalError %s, maximum number of tries reached",
+                        "[%s] Concurrent transaction - OperationalError %s, maximum number of tries reached",
                         self.code,
                         e.pgcode,
                     )
                     result = (
                         "E",
                         [
-                            ustr(
-                                "Concurrent transaction - OperationalError "
-                                "%s, maximum number of tries reached"
-                            )
-                            % (e.pgcode),
+                            self.env._(
+                                "Concurrent transaction - OperationalError %s, maximum number of tries reached",
+                                e.pgcode,
+                            ),
                         ],
                         True,
                     )
                     break
-                wait_time = random.uniform(0.0, 2 ** tries)
+                wait_time = random.uniform(0.0, 2**tries)
                 tries += 1
                 _logger.info(
-                    "[%s] Concurrent transaction detected (%s), "
-                    "retrying %d/%d in %.04f sec...",
+                    "[%s] Concurrent transaction detected (%s), retrying %d/%d in %.04f sec...",
                     self.code,
                     e.pgcode,
                     tries,
@@ -696,32 +828,17 @@ class ScannerHardware(models.Model):
                 time.sleep(wait_time)
             except exceptions.UserError as e:
                 # ORM exception, display the error message and require the "go
-                # back" action
-                self.env.cr.rollback()
+                # back" action. The savepoint has already discarded the step.
                 _logger.warning("[%s] OSV Exception:", self.code, exc_info=True)
-                # In Odoo 19, UserError message is accessible via str(e)
-                error_msg = str(e)
-                result = ("E", ["error:", error_msg, "", ""], True)
+                result = ("E", ["error:", str(e), "", ""], True)
                 break
-            except Exception as e:
-                self.env.cr.rollback()
-                error_msg = str(e) if e else "Unknown error"
-                _logger.error(
-                    "[%s] Exception: %s", self.code, error_msg, exc_info=True
-                )
-                # Include error message if it's safe to display (not too long and not sensitive)
-                if len(error_msg) < 100 and not any(
-                    sensitive in error_msg.lower()
-                    for sensitive in ["password", "secret", "key", "token"]
-                ):
-                    # Split long messages into multiple lines for the scanner display
-                    error_lines = error_msg.split("\n")[:3]  # Max 3 lines
-                    result = ("R", error_lines if error_lines else ["Please contact", "your", "administrator"], 0)
-                else:
-                    result = ("R", ["Please contact", "your", "administrator", "Error : " + error_msg], 0)
+            except Exception:
+                # Never expose the technical error to the terminal
+                _logger.exception("[%s] Exception: ", self.code)
+                result = ("R", ["Please contact", "your", "administrator"], 0)
                 self.empty_scanner_values()
                 break
-        self.log("Return value : {!r}".format(result))
+        self.log(f"Return value : {result!r}")
 
         # Manage automatic steps
         if result[0] == "A":
@@ -731,31 +848,43 @@ class ScannerHardware(models.Model):
 
     @api.model
     def _scenario_list(self, parent_id=False):
-        """
-        Retrieve the scenario list for this warehouse
+        """List the names of the scenarios and menus available for this terminal's warehouse.
+
+        Only entries that are usable are returned, meaning menus with children and scenarios with steps.
+
+        Args:
+            parent_id: Id of the parent menu, False for the root level.
+
+        Returns:
+            list: Scenario names.
         """
         scanner_scenario_obj = self.env["scanner.scenario"]
-        scanner_scenario_ids = scanner_scenario_obj.search(
-            [
-                "|",
-                ("warehouse_ids", "=", False),
-                ("warehouse_ids", "in", [self.warehouse_id.id]),
-                ("parent_id", "=", parent_id),
-                "|",
-                ("child_ids", "!=", False),
-                ("step_ids", "!=", False),
-            ]
-        )
+        scanner_scenario_ids = scanner_scenario_obj.search([
+            "|",
+            ("warehouse_ids", "=", False),
+            ("warehouse_ids", "in", [self.warehouse_id.id]),
+            ("parent_id", "=", parent_id),
+            "|",
+            ("child_ids", "!=", False),
+            ("step_ids", "!=", False),
+        ])
 
         return scanner_scenario_ids.mapped("name")
 
     def _screen_size(self):
-        """
-        Retrieve the screen size for this terminal
+        """Return the screen size of the terminal.
+
+        Returns:
+            tuple: (width, height) in characters.
         """
         self.ensure_one()
         return (self.screen_width, self.screen_height)
 
     def log(self, log_message):
+        """Log a message when logging is enabled on this terminal.
+
+        Args:
+            log_message: Message to log.
+        """
         if self.log_enabled:
-            _logger.info("[{}] {}".format(self.code, ustr(log_message)))
+            _logger.info(f"[{self.code}] {log_message}")

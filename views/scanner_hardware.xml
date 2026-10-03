@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+    Copyright 2026 Subteno (https://www.subteno.com)
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 -->
 <odoo>
     <record id="view_scanner_hardware_tree" model="ir.ui.view">
@@ -27,12 +28,7 @@
                     <div class="oe_button_box" name="button_box">
                     </div>
                     <field name="active" invisible="1" />
-                    <widget
-                        name="web_ribbon"
-                        text="Archived"
-                        bg_color="bg-danger"
-                        invisible="active"
-                    />
+                    <widget name="web_ribbon" text="Archived" bg_color="bg-danger" invisible="active" />
                     <group colspan="4" col="4">
                         <field name="code" />
                         <field name="name" />
@@ -61,13 +57,7 @@
                         <field name="scenario_id" />
                         <field name="step_id" />
                         <field name="reference_document" />
-                        <button
-                            string="Reset Scenario"
-                            colspan="2"
-                            type="object"
-                            icon="fa-retweet"
-                            name="empty_scanner_values"
-                        />
+                        <button string="Reset Scenario" colspan="2" type="object" icon="fa-retweet" name="empty_scanner_values" />
                     </group>
                     <group colspan="4">
                         <separator string="Temporary values" colspan="2" />
@@ -107,10 +97,5 @@
         <field name="view_mode">list</field>
         <field name="view_id" ref="view_scanner_hardware_tree" />
     </record>
-    <menuitem
-        id="menu_scanner_hardware"
-        parent="menu_scanner_configuration"
-        sequence="10"
-        action="act_open_scanner_hardware_view"
-    />
+    <menuitem id="menu_scanner_hardware" parent="menu_scanner_configuration" sequence="10" action="act_open_scanner_hardware_view" />
 </odoo>

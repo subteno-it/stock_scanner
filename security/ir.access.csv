@@ -1,0 +1,20 @@
+id,name,model_id,group_id/id,operation,domain
+access_scanner_hardware_user,scanner_hardware_user,scanner.hardware,base.group_user,ru,"['|', ('user_id', '=', user.id), ('user_id', '=', False)]"
+access_scanner_hardware_sentinel,scanner_hardware_sentinel,scanner.hardware,stock_scanner.group_stock_scanner_sentinel,ru,
+access_scanner_hardware_manager,scanner_hardware_manager,scanner.hardware,stock.group_stock_manager,crud,
+access_scanner_hardware_step_history_user,scanner_hardware_step_history_user,scanner.hardware.step.history,base.group_user,crud,
+access_scanner_hardware_step_history_sentinel,scanner_hardware_step_history_sentinel,scanner.hardware.step.history,stock_scanner.group_stock_scanner_sentinel,crud,
+access_scanner_hardware_step_history_manager,scanner_hardware_step_history_manager,scanner.hardware.step.history,stock.group_stock_manager,crud,
+access_scanner_scenario_user,scanner_scenario_user,scanner.scenario,base.group_user,r,
+access_scanner_scenario_sentinel,scanner_scenario_sentinel,scanner.scenario,stock_scanner.group_stock_scanner_sentinel,r,
+access_scanner_scenario_manager,scanner_scenario_manager,scanner.scenario,stock.group_stock_manager,crud,
+access_scanner_scenario_user_or_group_rule,Scanner scenario users and groups rule,scanner.scenario,,r,"['|', ('user_ids', '=', user.id), ('group_ids', 'in', user.all_group_ids.ids)]"
+access_scanner_scenario_step_user,scanner_scenario_step_user,scanner.scenario.step,base.group_user,r,
+access_scanner_scenario_step_sentinel,scanner_scenario_step_sentinel,scanner.scenario.step,stock_scanner.group_stock_scanner_sentinel,r,
+access_scanner_scenario_step_manager,scanner_scenario_step_manager,scanner.scenario.step,stock.group_stock_manager,crud,
+access_scanner_scenario_step_user_or_group_rule,Scanner scenario step users and groups rule,scanner.scenario.step,,r,"['|', ('scenario_id.user_ids', '=', user.id), ('scenario_id.group_ids', 'in', user.all_group_ids.ids)]"
+access_scanner_scenario_transition_user,scanner_scenario_transition_user,scanner.scenario.transition,base.group_user,r,
+access_scanner_scenario_transition_sentinel,scanner_scenario_transition_sentinel,scanner.scenario.transition,stock_scanner.group_stock_scanner_sentinel,r,
+access_scanner_scenario_transition_manager,scanner_scenario_transition_manager,scanner.scenario.transition,stock.group_stock_manager,crud,
+access_scanner_scenario_transition_user_or_group_rule,Scanner scenario transition users and groups rule,scanner.scenario.transition,,r,"['|', ('scenario_id.user_ids', '=', user.id), ('scenario_id.group_ids', 'in', user.all_group_ids.ids)]"
+access_wizard_export_scenario_manager,wizard_export_scenario_manager,wizard.export.scenario,stock.group_stock_manager,crud,

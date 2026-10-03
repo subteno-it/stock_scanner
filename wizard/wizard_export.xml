@@ -1,4 +1,8 @@
 <?xml version="1.0" ?>
+<!--
+    Copyright 2026 Subteno (https://www.subteno.com)
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+-->
 <odoo>
     <record id="wizard_export_scenario" model="ir.ui.view">
         <field name="name">wizard.export.scenario</field>
@@ -11,21 +15,12 @@
                     </p>
                 </group>
                 <group>
-                    <field
-                        name="scenario_ids"
-                        options="{'no_create': True}"
-                        widget="many2many_tags"
-                    />
+                    <field name="scenario_ids" options="{'no_create': True}" widget="many2many_tags" />
                     <field name="is_copy" />
                 </group>
                 <footer>
                     <button type="special" special="cancel" string="Cancel" />
-                    <button
-                        type="object"
-                        string="Export"
-                        name="action_export"
-                        class="oe_highlight"
-                    />
+                    <button type="object" string="Export" name="action_export" class="oe_highlight" />
                 </footer>
             </form>
         </field>

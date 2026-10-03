@@ -1,5 +1,7 @@
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 # © 2011 Sylvain Garancher <sylvain.garancher@syleam.fr>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 PYTHON_CODE_DEFAULT = """
 'Use <m> or <message> to retrieve the data transmitted by the scanner.'

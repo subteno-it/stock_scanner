@@ -1,3 +1,6 @@
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 # flake8: noqa
 # Use <m> or <message> to retrieve the data transmitted by the scanner.
 # Use <t> or <terminal> to retrieve the running terminal browse record.
@@ -9,12 +12,8 @@ act = "E"
 res = [
     _("|Error step"),
     "",
-    _(
-        "This step shows an error message, using the error colors defined in the hardware configuration."
-    ),
+    _("This step shows an error message, using the error colors defined in the hardware configuration."),
     "",
-    _(
-        "After this step, the scenario automatically goes back if the returned value is set to True."
-    ),
+    _("After this step, the scenario automatically goes back if the returned value is set to True."),
 ]
 val = True

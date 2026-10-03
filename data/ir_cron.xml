@@ -1,12 +1,11 @@
 <?xml version="1.0" ?>
 <!--
-    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+    Copyright 2026 Subteno (https://www.subteno.com)
+    License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 -->
 <odoo noupdate="1">
     <record id="hardware_reset_user_id_on_timeout" model="ir.cron">
-        <field
-            name="name"
-        >Remove the current user_id and scenario values on session timeout</field>
+        <field name="name">Remove the current user_id and scenario values on session timeout</field>
         <field name="interval_number">1</field>
         <field name="interval_type">minutes</field>
         <field name="nextcall">2014-02-10 21:00:00</field>

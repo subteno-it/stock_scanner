@@ -1,4 +1,6 @@
-import base64
+# Copyright 2026 Subteno (https://www.subteno.com)
+# License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
+
 import re
 import zipfile
 from io import BytesIO
@@ -6,41 +8,81 @@ from io import BytesIO
 from lxml.etree import Element, SubElement, tostring
 
 from odoo import api, fields, models
+from odoo.tools.binary import BinaryBytes
 
 
 class ExportScenario(models.TransientModel):
+    """Export scenarios as a zip of ``.scenario`` XML files and one Python file per step."""
+
     _name = "wizard.export.scenario"
     _description = "Wizard Export Scenario"
 
     @api.model
     def default_get(self, fields):
+        """Preselect the scenarios the wizard was opened from.
+
+        Args:
+            fields: Names of the fields to provide defaults for.
+
+        Returns:
+            dict: Default values, with ``scenario_ids`` taken from the active records.
+        """
         res = super().default_get(fields)
-        if self.env.context.get(
-            "active_model"
-        ) == "scanner.scenario" and self.env.context.get("active_ids"):
-            scenario = (
-                self.env["scanner.scenario"]
-                .browse(self.env.context["active_ids"])
-                .exists()
-            )
+        if self.env.context.get("active_model") == "scanner.scenario" and self.env.context.get("active_ids"):
+            scenario = self.env["scanner.scenario"].browse(self.env.context["active_ids"]).exists()
             res["scenario_ids"] = [(6, 0, scenario.ids)]
         return res
 
     scenario_ids = fields.Many2many(
-        "scanner.scenario", string="Scenario", required=True,
+        string="Scenario",
+        comodel_name="scanner.scenario",
+        required=True,
+        help="",
     )
     is_copy = fields.Boolean(
-        default=False, string="Check to make a copy in new instance."
+        string="Check to make a copy in new instance.",
+        default=False,
+        help="",
     )
-    zip_file = fields.Binary(attachment=True)
+    zip_file = fields.Binary(
+        string="Zip File",
+        attachment=True,
+        help="",
+    )
 
-    def action_export(self):
+    def action_export(self):  # noqa: C901
+        """Build the zip archive of the selected scenarios and return a download action.
+
+        XML-IDs are reused when they exist, otherwise generated from the names (always generated
+        when ``is_copy`` is set, so that the export can be loaded as a copy in another instance).
+        Duplicated generated XML-IDs get a numeric suffix.
+
+        Returns:
+            dict: ``ir.actions.act_url`` action downloading the zip file.
+        """
         self.ensure_one()
 
         def normalize_name(name):
+            """Turn a name into a lowercase identifier safe for XML-IDs and file names.
+
+            Args:
+                name: Record name.
+
+            Returns:
+                str: Name with every non alphanumeric character replaced by an underscore.
+            """
             return re.sub(r"[^\w\d]", "_", name).lower()
 
         def new_node(name, value):
+            """Append a text child to the scenario root element.
+
+            Args:
+                name: Tag of the new element.
+                value: Text content of the element.
+
+            Returns:
+                Element: The created element.
+            """
             node = SubElement(root, name)
             node.text = value
             return node
@@ -53,7 +95,7 @@ class ExportScenario(models.TransientModel):
             directory = normalize_name(scenario.name)
             scenario_xml_id = scenario.get_metadata()[0]["xmlid"]
             if self.is_copy or not scenario_xml_id:
-                scenario_xml_id = "scenario_{name}".format(name=directory)
+                scenario_xml_id = f"scenario_{directory}"
 
             # Add the scenario values in the XML structure
             root = Element("scenario")
@@ -65,17 +107,15 @@ class ExportScenario(models.TransientModel):
             new_node("notes", scenario.notes or "")
 
             if scenario.model_id:
-                new_node("model_id", scenario.model_id.model),
+                (new_node("model_id", scenario.model_id.model),)
 
             if scenario.company_id:
-                new_node("company_id", scenario.company_id.name),
+                (new_node("company_id", scenario.company_id.name),)
 
             if scenario.parent_id:
                 parent_value = scenario.parent_id.get_metadata()[0]["xmlid"]
                 if self.is_copy or not parent_value:
-                    parent_value = "scenario_{parent_name}".format(
-                        parent_name=normalize_name(scenario.parent_id.name)
-                    )
+                    parent_value = f"scenario_{normalize_name(scenario.parent_id.name)}"
                 new_node("parent_id", parent_value)
 
             for warehouse in scenario.warehouse_ids:
@@ -102,13 +142,11 @@ class ExportScenario(models.TransientModel):
                 # Retrieve the step's xml ID
                 step_xml_id = step.get_metadata()[0]["xmlid"]
                 if self.is_copy or not step_xml_id:
-                    step_xml_id = "scenario_step_{scenario}_{step}".format(
-                        scenario=directory, step=normalize_name(step.name),
-                    )
+                    step_xml_id = f"scenario_step_{directory}_{normalize_name(step.name)}"
 
                 if step_xml_id in step_xmlid_counters:
                     step_xmlid_counters[step_xml_id] += 1
-                    step_xml_id += "_%d" % (step_xmlid_counters[step_xml_id])
+                    step_xml_id += f"_{step_xmlid_counters[step_xml_id]}"
                     step_xmlid_counters[step_xml_id] = 1
                     # This prevents problems with 2 steps
                     # named 'test' [generating 'test'
@@ -129,9 +167,7 @@ class ExportScenario(models.TransientModel):
                     if scenario_module == step_module:
                         python_filename = step_xml_id.split(".")[1]
                 zf.writestr(
-                    zinfo_or_arcname="{directory}/{name}.py".format(
-                        directory=directory, name=python_filename
-                    ),
+                    zinfo_or_arcname=f"{directory}/{python_filename}.py",
                     data=step.python_code.encode("utf-8"),
                 )
 
@@ -158,16 +194,11 @@ class ExportScenario(models.TransientModel):
                 transition_xml_id = transition.get_metadata()[0]["xmlid"]
                 if self.is_copy or not transition_xml_id:
                     transition_xml_id = "scenario_transition"
-                    "_{scenario}_{transition}".format(
-                        scenario=normalize_name(scenario.name),
-                        transition=normalize_name(transition.name),
-                    )
+                    f"_{normalize_name(scenario.name)}_{normalize_name(transition.name)}"
 
                 if transition_xml_id in transition_xmlid_counters:
                     transition_xmlid_counters[transition_xml_id] += 1
-                    transition_xml_id += "_%d" % (
-                        transition_xmlid_counters[transition_xml_id]
-                    )
+                    transition_xml_id += f"_{transition_xmlid_counters[transition_xml_id]}"
                     transition_xmlid_counters[transition_xml_id] = 1
                     # This prevents problems with 2 transitions named 'test'
                     # [generating 'test' and 'test_2']
@@ -188,27 +219,20 @@ class ExportScenario(models.TransientModel):
                     "tracer": transition.tracer or "",
                 }
                 SubElement(root, "Transition", attrib=transition_attributes)
-            xml_filename = "{scenario}.scenario".format(scenario=directory)
+            xml_filename = f"{directory}.scenario"
             zf.writestr(
-                zinfo_or_arcname="{directory}/{name}".format(
-                    directory=directory, name=xml_filename
-                ),
-                data=tostring(
-                    root, encoding="UTF-8", xml_declaration=True, pretty_print=True
-                ),
+                zinfo_or_arcname=f"{directory}/{xml_filename}",
+                data=tostring(root, encoding="UTF-8", xml_declaration=True, pretty_print=True),
             )
 
         zf.close()
-        self.zip_file = base64.b64encode(mem_zip.getvalue())
+        self.zip_file = BinaryBytes(mem_zip.getvalue(), filename=zip_filename)
         mem_zip.close()
 
         action = {
             "name": zip_filename,
             "type": "ir.actions.act_url",
-            "url": "web/content/wizard.export.scenario"
-            "/{id}/zip_file/{filename}?download=true".format(
-                id=self.id, filename=zip_filename
-            ),
+            "url": f"web/content/wizard.export.scenario/{self.id}/zip_file/{zip_filename}?download=true",
             "target": "self",
         }
         return action
