@@ -212,7 +212,7 @@ class ScannerHardware(models.Model):
         Meant to be run by a cron. The delay comes from the ``hardware_scanner_session_timeout`` parameter
         (seconds, 1800 by default).
         """
-        timeout_delay = self.env["ir.config_parameter"].get_int("hardware_scanner_session_timeout", 1800)  # seconds
+        timeout_delay = int(self.env["ir.config_parameter"].get_param("hardware_scanner_session_timeout", 1800))  # seconds
         expired_dt = datetime.datetime.now() - datetime.timedelta(seconds=timeout_delay)
         expired_str = fields.Datetime.to_string(expired_dt)
         terminals = self.search([("last_call_dt", "<", expired_str)])

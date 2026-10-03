@@ -12,6 +12,5 @@ from . import test_stock_scanner_scenario_transition
 from . import test_stock_scanner_scenario_execution
 from . import test_stock_scanner_scenario_export
 from . import test_stock_scanner_scenario_loading
-from . import test_stock_scanner_json2
 from . import test_stock_scanner_security
 from . import test_stock_scanner_migration
