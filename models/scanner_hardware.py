@@ -538,6 +538,23 @@ class ScannerHardware(models.Model):
 
         return None
 
+    def _extend_step_context(self, context):
+        """Extension point: add variables or helpers to the code executed by a step.
+
+        Called just before the Python code of a step runs. A module needing more than ``act``, ``res`` and ``val``
+        (for instance a richer display for the terminal) overrides it to put its own names in ``context``.
+
+        Args:
+            context: Dict used as the globals of the step code, modified in place.
+        """
+
+    def _on_step_executed(self, context):
+        """Extension point: read the variables set by a step once its code has run.
+
+        Args:
+            context: Dict holding the globals of the step code, including ``act``, ``res`` and ``val``.
+        """
+
     def _build_step_translator(self, step):
         """Build the ``_()`` function exposed to step code, which is run through ``exec`` and so cannot use the
         standard translation machinery.
@@ -751,7 +768,9 @@ class ScannerHardware(models.Model):
         if tracer:
             terminal.log(f"Tracer : {tracer!r}")
 
+        terminal._extend_step_context(ld)
         exec(step.python_code, ld)
+        terminal._on_step_executed(ld)
         if step.step_stop:
             terminal.empty_scanner_values()
 
