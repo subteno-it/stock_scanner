@@ -34,6 +34,15 @@ Configuration
 In Odoo
 -------
 
+Technical user and licences
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The group *Sentinel: technical users* is declared as a *light* group. A user with the *Internal user* right and this group
+only is a light user. With the login and logout scenarios enabled, the scenarios run with the rights of the operator
+logged in on the terminal, so the technical user needs nothing more. Without them, everything runs as the technical
+user, which then needs the rights of the documents the scenarios handle (and is a regular user). The operators are real
+users: those who only need *Inventory / User* are light users as well.
+
 Declare hardware
 ^^^^^^^^^^^^^^^^
 
