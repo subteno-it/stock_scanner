@@ -3,12 +3,14 @@
 
 # Copyright 2017 SYLEAM Info Services
 
-from odoo.tests import common, tagged
+from odoo.tests import tagged
 from odoo.tools.misc import mute_logger
+
+from .common import StockScannerCommon
 
 
 @tagged("post_install", "-at_install", "stock_scanner")
-class TestStockScannerHardware(common.TransactionCase):
+class TestStockScannerHardware(StockScannerCommon):
     """Behaviour of a scanner hardware: scenario selection, step execution, transitions, login and logging."""
 
     def setUp(self):

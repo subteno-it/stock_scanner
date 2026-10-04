@@ -8,7 +8,7 @@ class StockScannerCommon(TransactionCase):
     """Shared fixture isolating the tests from the data of the database.
 
     The scanner menus list every scenario the user can see, so tests comparing them would fail on a database that
-    holds other scenarios (customer test data, scenarios of other modules).
+    holds other scenarios (customer test data, scenarios of other modules). Terminals are reset too.
     """
 
     @classmethod
@@ -25,4 +25,6 @@ class StockScannerCommon(TransactionCase):
             .mapped("res_id")
         )
         cls.env["scanner.scenario"].search([("id", "not in", module_scenario_ids)]).write({"active": False})
+        # A terminal left in the middle of a scenario (by a manual test, for instance) would change every answer
+        cls.env["scanner.hardware"].search([]).empty_scanner_values()
         return res
