@@ -5,6 +5,7 @@
 # © 2011 Damien CRIER <damien.crier@objectif-pi.com>
 
 from . import ir_model
+from . import res_groups
 from . import scanner_scenario
 from . import scanner_scenario_step
 from . import scanner_scenario_transition
