@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-12 02:40+0000\n"
+"POT-Creation-Date: 2026-10-04 22:40+0000\n"
 "PO-Revision-Date: 2017-04-12 02:40+0000\n"
 "Last-Translator: OCA Transbot <transbot@odoo-community.org>, 2016\n"
 "Language-Team: French (https://www.transifex.com/oca/teams/23907/fr/)\n"
@@ -19,8 +19,8 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:26
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid ""
 "- A dict (text input step). The key 'default' is the default value, the key "
 "'size' is the maximum size before automatic validation."
@@ -30,8 +30,8 @@ msgstr ""
 "automatique."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:22
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid ""
 "- A dict of strings (list step). The key is the returned value, the second "
 "value is the displayed value."
@@ -40,8 +40,8 @@ msgstr ""
 "valeur retournée, la seconde valeur est la valeur affichée."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:20
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid ""
 "- A list of strings (all step types). Each string corresponds to a line of "
 "text to display. The long lines will be splitted automatically to fit on "
@@ -52,8 +52,8 @@ msgstr ""
 "lignes seront coupées automatiquement pour tenir sur l'écran."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:21
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid ""
 "- A list of tuples of two strings (list steps). The first value of each "
 "tuple is the returned value, the second value is the displayed value."
@@ -63,36 +63,304 @@ msgstr ""
 "est la valeur affichée."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:25
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid ""
-"- A single value (all step types). The type of the value depends on the type "
-"of step (float, integer, boolean...)."
+"- A single value (all step types). The type of the value depends on the type"
+" of step (float, integer, boolean...)."
 msgstr ""
 "- Une valeur seule (tous les types d'étapes). Le type de valeur dépend du "
 "type de l'étape (flottant, entier, booléen...)."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:13
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "- act : Type of step"
 msgstr "- act : Type d'étape"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "- res : Content to display"
 msgstr "- res : Contenu à afficher"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:15
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "- val : Default value"
 msgstr "- val : Valeur par défaut"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_message.py:12
-#, python-format
+#: model:ir.module.module,description:base.module_stock_scanner
+msgid ""
+".. image:: https://img.shields.io/badge/licence-LGPL--3-blue.svg\n"
+"   :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html\n"
+"   :alt: License: LGPL-3\n"
+"\n"
+"====================================================\n"
+"Stock Scanner : WorkFlow engine for scanner hardware\n"
+"====================================================\n"
+"\n"
+"This module allows managing barcode readers with simple scenarios:\n"
+"\n"
+"- You can define a workflow for each object (stock picking, inventory, sale, etc)\n"
+"- Works with all scanner hardware model (just SSH client required)\n"
+"\n"
+"Some demo/tutorial scenarios are available in the \"demo\" directory of the module.\n"
+"These scenarios, are automatically imported when installing a new database with demo data.\n"
+"\n"
+"Installation\n"
+"============\n"
+"\n"
+"\n"
+"The `odoo-sentinel` specific client can be installed from pip:\n"
+"\n"
+"    $ pip install odoo-sentinel\n"
+"\n"
+"This application is a separate client, and can be run on any device.\n"
+"\n"
+"For mobile devices, like Windows Mobile or Android smart barcode scanners, we usually install it on a server, accessed through SSH.\n"
+"\n"
+"To test the module, some modules provide scenario.\n"
+"\n"
+"Configuration\n"
+"=============\n"
+"\n"
+"In Odoo\n"
+"-------\n"
+"\n"
+"Declare hardware\n"
+"^^^^^^^^^^^^^^^^\n"
+"\n"
+"You have to declare some hardware scanners in Odoo.\n"
+"\n"
+"Go to \"Inventory > Configuration > Scanner Configuration > Scanner Hardware\" and create a new record.\n"
+"\n"
+"The \"step type code\" sent by the \"odoo-sentinel\" client at start-up is the IP address of the hardware, if connected through SSH.\n"
+"\n"
+"If needed enable Login/Logout\n"
+"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+"The module comes with 2 predefined scenarii for Login and Logout. The functionality is disabled by default and the user to use in\n"
+"Odoo must be the owner of the API key set in the `.odoorpcrc` file used by odoo-sentinel and can be overriden on the Scanner Hardware definition\n"
+"in Odoo.\n"
+"\n"
+"If the Login/logout functionality is enabled, when a user starts a session with odoo-sentinel, only the Login scenario is displayed on the\n"
+"screen. The scenario will prompt the user for its login and pwd. If the authentication succeeds, each interaction with Odoo will be done\n"
+"using the uid of the connected user. Once connected, a Logout scenario is displayed in the list of available scenarii and the Login\n"
+"scenario no longer appears.\n"
+"\n"
+"The Login/logout functionality enables you to specify on the scenario a list of users and/or a list of groups with access to the scenario.\n"
+"\n"
+"To enable the Login/logout functionality:\n"
+"    * Go to \"Settings > Warehouse\" and check the checkbox Login/logout scenarii enabled.\n"
+"    * Create a *Technical User* 'sentinel' **without roles in Human Resources** and with 'Sentinel: technical users' checked.\n"
+"    * Use this user to launch your odoo-sentinel session.\n"
+"\n"
+"Be careful, the role *Sentinel: technical users* is a technical role and should only be used by sentinel.\n"
+"\n"
+"The timeout of sessions is managed by a dedicated cron that resets the inactive sessions. The timeout can be configured on\n"
+"settings. \"Settings > Warehouse\"\n"
+"\n"
+"For the odoo-sentinel client\n"
+"----------------------------\n"
+"\n"
+"Since Odoo 20, the XML-RPC and JSON-RPC endpoints (``/xmlrpc``, ``/jsonrpc``) are deprecated. The ``odoo-sentinel`` client\n"
+"must connect through the JSON-2 external API (``POST /json/2/<model>/<method>``, authenticated by an API key).\n"
+"The stock ``odoo-sentinel`` package relies on OdooRPC, which cannot speak JSON-2, so this repository ships the\n"
+"``odoo-sentinel-json2`` package (separate repository). It starts the unmodified ``odoo-sentinel`` ncurses client on top of a JSON-2 client,\n"
+"keeping the same usage: a shell session, locally or through SSH, and the same profile file.\n"
+"\n"
+"Installation (on the machine where the sentinel runs)::\n"
+"\n"
+"    uv pip install git+https://github.com/subteno-it/odoo-sentinel-json2\n"
+"    # then copy odoorpcrc.sample from that repository to ~/.odoorpcrc\n"
+"    chmod 600 ~/.odoorpcrc\n"
+"\n"
+"Create an API key for the *Sentinel technical user*, usable for the JSON-2 API (scope ``rpc``): from the security section of the user\n"
+"preferences (the exact menu label depends on the Odoo build). Put it in the ``api_key`` entry of the profile\n"
+"(``passwd`` is also read as the API key, so a former OdooRPC profile only needs its password replaced by the key).\n"
+"The key must stay in a file readable by its owner only, and be revoked when the terminal is decommissioned.\n"
+"\n"
+"Start the client with ``odoo-sentinel-json2`` instead of ``odoo-sentinel``. It accepts the same arguments.\n"
+"\n"
+"The default configuration file is `~/.odoorpcrc`, but this can be customized, using the `-c`/`--config` argument.\n"
+"See the `odoorpcrc.sample` file of the ``odoo-sentinel-json2`` repository for an example.\n"
+"\n"
+"If the `-p`/`--profile` argument is not given on the command line, a profile named `sentinel` will be used.\n"
+"\n"
+"The file used to log errors can be defined by using the `-l`/`--log-file` argument, which defaults to `~/sentinel.log`.\n"
+"\n"
+"**Note** : If you want to copy the application outside this git repository, you will need to copy the i18n folder too.\n"
+"\n"
+"Autoconfiguration feature\n"
+"^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+"\n"
+"The `odoo-sentinel` client has an autoconfiguration feature, used to automatically recognize the hardware being connected.\n"
+"During initialization, the `odoo-sentinel` client tries to detect an SSH connection, and sends the terminal's IP address as terminal code.\n"
+"If the IP address is found on the `code` field on a configured hardware in the database, this hardware configuration will automatically be used.\n"
+"If the IP address is not found, the client will ask the user to type (or scan) a code.\n"
+"\n"
+"This can be used only if the Odoo server and the connected hardware are on the same network.\n"
+"\n"
+"Writing scenario\n"
+"----------------\n"
+"\n"
+"Creation\n"
+"^^^^^^^^\n"
+"\n"
+"The preferred way to start the creation of a scenario is to create steps and transitions in the list views (or in the diagram view when the optional ``stock_scanner_flow_editor`` module is installed).\n"
+"\n"
+"Once your steps are created, you can write python code directly from Odoo, or you can export the scenario to write the python code with your preferred code editor.\n"
+"\n"
+"In the python code of each step, some variables are available :\n"
+"    - cr : Cursor to the database\n"
+"    - uid : ID of the user executing the step (user used to log in with the sentinel, or user configured on the hardware, if any)\n"
+"    - pool : Pooler to the database\n"
+"    - env : Environment used to execute the scenario (new API)\n"
+"    - model : Pooler on the model configured on the scenario\n"
+"    - term : Recordset on the current scenario\n"
+"    - context : Context used on the step\n"
+"    - m or message : Last message sent by the hardware\n"
+"    - t or terminal : Browse record on the hardware executing the step\n"
+"    - tracer : Value of the tracer of the used transition to access this step\n"
+"    - wkf or workflow : Workflow service\n"
+"    - scenario : Recordset on the current scenario for the hardware\n"
+"    - _ : The translation function provided by Odoo (useable like in any other python file)\n"
+"\n"
+"Some of these variables are also available on transition conditions execution.\n"
+"\n"
+"As stated previously, the step must always return:\n"
+"\n"
+"- A step type code, in the `act` variable\n"
+"- A message to display on the hardware screen, in the `res` variable\n"
+"- Optionally, a default value, in the `val` variable\n"
+"\n"
+"Step types\n"
+"^^^^^^^^^^\n"
+"\n"
+"The step types are mostly managed by the client.\n"
+"\n"
+"The standard step types are :\n"
+"\n"
+"- M : Simple message\n"
+"- F : Final step, like M, but ends the scenario\n"
+"- T : Text input\n"
+"- N : Number input (integer)\n"
+"- Q : Quantity input (float)\n"
+"- L : List\n"
+"- E : Error message, like M, but displayed with different colors\n"
+"- C : Confirm input\n"
+"- A : Automatic step. This type is used to automatically execute the next step\n"
+"\n"
+".. note::\n"
+"\n"
+"   The automatic step often needs to define a value in `val`, corresponding to the value the user must send.\n"
+"   This step type is generally used as replacement of another type, at the end of the step code, by redefining the `act` variable in some cases, for example when a single value is available for a list step.\n"
+"\n"
+"Import\n"
+"^^^^^^\n"
+"\n"
+"Scenarios are automatically imported on a module update, like any other data.\n"
+"You just have to add the path to your `Scenario_Name.scenario` files in the `data` or `demo` sections in the `__manifest__.py` file.\n"
+"\n"
+"Export\n"
+"^^^^^^\n"
+"\n"
+"The export script is in the `script` directory of the module\n"
+"\n"
+"A scenario is exported as a set of files, containing :\n"
+"    - Scenario_Name.scenario : Global description of the scenario (name, warehouses, steps, transitions, etc.)\n"
+"    - A .py file per step : The name of the file is the XML ID of the step\n"
+"\n"
+"Using a test file\n"
+"^^^^^^^^^^^^^^^^^\n"
+"\n"
+"When developing scenarios, you will often have the same steps to run.\n"
+"The odoo-sentinel client allows you to supply a file, which contains the keys pressed during the scenario.\n"
+"\n"
+"You can define the file to use in the `-t`/`--test-file` argument.\n"
+"This file will be read instead of calling the curses methods when the scenario is waiting for a user input (including line feed characters).\n"
+"When the file has been fully read, the client exits.\n"
+"\n"
+"A sample test file can be found in the \"Step Types\" demo scenario.\n"
+"\n"
+"*Special keys* :\n"
+"For special keys (arrows, delete, etc.), you must write a line containing ':', followed by the curses key code.\n"
+"\n"
+"Valid key codes are :\n"
+"    - KEY_DOWN : Down arrow\n"
+"    - KEY_UP : Up arrow\n"
+"    - KEY_LEFT : Left arrow\n"
+"    - KEY_RIGHT : Right arrow\n"
+"    - KEY_BACKSPACE : Backspace\n"
+"    - KEY_DC : Delete\n"
+"\n"
+"Usage\n"
+"=====\n"
+"\n"
+"On start-up, the client lists available scenarii.\n"
+"When the user selects a scenario, the current scenario and step are stored on the hardware configuration's entry in Odoo.\n"
+"\n"
+"When the client sends a message to the server, the next step is selected depending on the current step and the message sent.\n"
+"Then, the server returns the result of the step, which contains its type code and the text to display on the hardware screen.\n"
+"Unlike the standard Odoo Workflow, each step needs to find a valid transition, because a step needs to be displayed on the hardware screen at all times.\n"
+"\n"
+".. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas\n"
+"   :alt: Try me on Runbot\n"
+"   :target: https://runbot.odoo-community.org/runbot/154/13.0\n"
+"\n"
+"A client for the Datalogic PowerScan scanners was developped for a very early version or this module.\n"
+"The files have been removed, but are still available in the `git repository history\n"
+"<https://github.com/OCA/stock-logistics-workflow/tree/527f033e9d31fe822562d4716104f37f6ce1f88c/stock_scanner/hardware/datalogic/PowerScan>`_.\n"
+"\n"
+"Bug Tracker\n"
+"===========\n"
+"\n"
+"Bugs are tracked on `GitHub Issues\n"
+"<https://github.com/OCA/stock-logistics-workflow/issues>`_. In case of trouble, please\n"
+"check there if your issue has already been reported. If you spotted it first,\n"
+"help us smashing it by providing a detailed and welcomed `feedback\n"
+"<https://github.com/OCA/stock-logistics-workflow/issues/new?body=module:%20stock_scanner%0Aversion:%208.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.\n"
+"\n"
+"Credits\n"
+"=======\n"
+"\n"
+"Images\n"
+"------\n"
+"\n"
+"* Odoo Community Association: `Icon <https://github.com/OCA/maintainer-tools/blob/master/template/module/static/description/icon.svg>`_.\n"
+"\n"
+"Contributors\n"
+"------------\n"
+"* Alexandre Fayolle <afayolle.ml@free.fr>\n"
+"* Christophe CHAUVET <christophe.chauvet@syleam.fr>\n"
+"* Damien Crier <damien@crier.me>\n"
+"* Laetitia Gangloff <laetitia.gangloff@acsone.eu>\n"
+"* Laurent Mignon <laurent.mignon@acsone.eu>\n"
+"* Olivier Dony <odo@openerp.com>\n"
+"* Sebastien LANGE <sebastien.lange@subteno-it.com>\n"
+"* Sylvain Garancher\n"
+"* Florent de Labarre\n"
+"\n"
+"Maintainer\n"
+"----------\n"
+"\n"
+".. image:: https://odoo-community.org/logo.png\n"
+"   :alt: Odoo Community Association\n"
+"   :target: https://odoo-community.org\n"
+"\n"
+"This module is maintained by the OCA.\n"
+"\n"
+"OCA, or the Odoo Community Association, is a nonprofit organization whose\n"
+"mission is to support the collaborative development of Odoo features and\n"
+"promote its widespread use.\n"
+"\n"
+"To contribute to this module, please visit https://odoo-community.org.\n"
+msgstr ""
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_message.py:0
 msgid ""
 "A step designed to display some information, without waiting for any user "
 "input."
@@ -101,6 +369,7 @@ msgstr ""
 "utilisateur."
 
 #. module: stock_scanner
+#: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__active
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__active
 msgid "Active"
 msgstr "Actif"
@@ -112,24 +381,24 @@ msgid "Add note, modification date, etc."
 msgstr "Ajouter une note, une date de modification, etc."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:0
 msgid ""
 "After this step, the scenario automatically goes back if the returned value "
 "is set to True."
 msgstr ""
-"Après cette étape, le scénario retourne automatiquement à l'étape précédente "
-"si la valeur de retour est définie à True."
+"Après cette étape, le scénario retourne automatiquement à l'étape précédente"
+" si la valeur de retour est définie à True."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_final.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_final.py:0
 msgid "After this step, the scenario is finished."
 msgstr "Après cette étape, le scénario est terminé."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:0
 msgid ""
 "All step types allow the user to scroll if the text doesn't fit on screen."
 msgstr ""
@@ -137,8 +406,8 @@ msgstr ""
 "texte ne tient pas sur l'écran."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "All steps must return three values :"
 msgstr "Tous les types d'étapes doivent retourner trois valeurs :"
 
@@ -168,6 +437,12 @@ msgid "Allowed Users Groups"
 msgstr "Groupes d'utilisateurs autorisés"
 
 #. module: stock_scanner
+#: model:ir.module.module,summary:base.module_stock_scanner
+msgid "Allows managing barcode readers with simple scenarios"
+msgstr ""
+"Permet de gérer des lecteurs de codes-barres avec des scénarios simples"
+
+#. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario__name
 msgid "Appear on barcode reader screen."
 msgstr "Apparaît sur l'écran du lecteur de codes barres."
@@ -175,7 +450,7 @@ msgstr "Apparaît sur l'écran du lecteur de codes barres."
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_search
 msgid "Archived"
-msgstr ""
+msgstr "Archivé"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__base_bg_color
@@ -188,29 +463,29 @@ msgid "Base - Text Color"
 msgstr "Base - Couleur du texte"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:20
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Black"
 msgstr "Noir"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:21
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Blue"
 msgstr "Bleu"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_going_back.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_going_back.py:0
 msgid ""
 "By pressing the escape key, you can return back to the last 'Return step'."
 msgstr ""
-"En appuyant sur la touche d'échappement, vous pouvez retourner à la dernière "
-"'Étape retour'."
+"En appuyant sur la touche d'échappement, vous pouvez retourner à la dernière"
+" 'Étape retour'."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirmed.py:13
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirmed.py:0
 msgid "Bye !"
 msgstr "Au revoir !"
 
@@ -218,6 +493,11 @@ msgstr "Au revoir !"
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_search
 msgid "Can contain scenarios or submenus"
 msgstr "Peut contenir des scénarios ou sous-menus"
+
+#. module: stock_scanner
+#: model_terms:ir.ui.view,arch_db:stock_scanner.wizard_export_scenario
+msgid "Cancel"
+msgstr "Annuler"
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario_step__step_stop
@@ -243,16 +523,15 @@ msgstr ""
 "Cocher cette case pour bloquer à cette étape lors de retours en arrière."
 
 #. module: stock_scanner
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__is_copy
+msgid "Check to make a copy in new instance."
+msgstr "Cochez pour créer une copie dans une nouvelle instance."
+
+#. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__code
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
 msgid "Code"
 msgstr "Code"
-
-#. module: stock_scanner
-#: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__code
-msgid "Code of this hardware."
-msgstr "Code pour ce matériel."
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__error_bg_color
@@ -285,26 +564,30 @@ msgid "Company to be used on this scenario."
 msgstr "Société utilisée pour ce scénario."
 
 #. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid ""
+"Concurrent transaction - OperationalError %s, maximum number of tries "
+"reached"
+msgstr ""
+"Transaction concurrente - OperationalError %s, nombre maximal de tentatives "
+"atteint"
+
+#. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__condition
 msgid "Condition"
 msgstr "Condition"
 
 #. module: stock_scanner
 #: model:ir.model,name:stock_scanner.model_res_config_settings
-#, fuzzy
 msgid "Config Settings"
-msgstr "Stock.config.paramètres"
+msgstr "Paramètres de configuration"
 
 #. module: stock_scanner
-#: model_terms:ir.ui.view,arch_db:stock_scanner.res_config_settings_view_form
-msgid "Configure scanner module"
-msgstr "Configuration du module de scanner"
-
-#. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_scenario.py:112
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_scenario.py:0
 msgid "Copy of %s"
-msgstr ""
+msgstr "Copie de %s"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__create_uid
@@ -312,6 +595,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__create_uid
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__create_uid
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__create_uid
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__create_uid
 msgid "Created by"
 msgstr "Créé par"
 
@@ -321,6 +605,7 @@ msgstr "Créé par"
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__create_date
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__create_date
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__create_date
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__create_date
 msgid "Created on"
 msgstr "Créé le"
 
@@ -340,8 +625,8 @@ msgid "Current step for this hardware."
 msgstr "Étape courante pour ce matériel."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:22
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Cyan"
 msgstr "Cyan"
 
@@ -352,9 +637,8 @@ msgstr "Date et heure du dernier appel au système fait par le scanner."
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__tmp_values_display
-#, fuzzy
 msgid "Debug tmp values"
-msgstr "Valeur temporaire 1"
+msgstr "Déboguer les valeurs temporaires"
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__base_bg_color
@@ -377,17 +661,20 @@ msgid "Directly launch a scenario"
 msgstr "Exécuter directement un scénario"
 
 #. module: stock_scanner
+#: model:ir.model.fields,field_description:stock_scanner.field_ir_model_data__display_name
+#: model:ir.model.fields,field_description:stock_scanner.field_res_config_settings__display_name
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__display_name
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history__display_name
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__display_name
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__display_name
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__display_name
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__display_name
 msgid "Display Name"
 msgstr "Nom à afficher"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirm.py:11
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirm.py:0
 msgid "Do you really want to logout?"
 msgstr "Voulez-vous vraiment vous déconnecter ?"
 
@@ -398,20 +685,18 @@ msgstr "Active la journalisation des messages depuis les scénarios."
 
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.res_config_settings_view_form
-#, fuzzy
-msgid "Enable the login and logout scenarii"
-msgstr "Active la journalisation des messages depuis les scénarios."
+msgid "Enable scanner login and logout scenarios."
+msgstr "Activer les scénarios de connexion et de déconnexion du scanner."
 
 #. module: stock_scanner
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
 msgid "Enter the python code here"
 msgstr "Entrer le code python ici"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_scenario.py:106
-#: code:addons/stock_scanner/models/scanner_scenario_transition.py:79
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_scenario.py:0
+#: code:addons/stock_scanner/models/scanner_scenario_transition.py:0
 msgid "Error ! You can not create recursive scenarios."
 msgstr "Erreur ! Vous ne pouvez créer de scénarios récursifs."
 
@@ -426,19 +711,18 @@ msgid "Error - Text Color"
 msgstr "Erreur - Couleur du texte"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_scenario_transition.py:99
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_scenario_transition.py:0
 msgid ""
 "Error in condition for transition \"%s\" at line %d, offset %d:\n"
 "%s"
 msgstr ""
-"Erreur dans la condition de la transition \"%s\" à la ligne %d, caractère "
-"%d:\n"
+"Erreur dans la condition de la transition \"%s\" à la ligne %d, caractère %d:\n"
 "%s"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_scenario_step.py:81
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_scenario_step.py:0
 msgid ""
 "Error in python code for step \"%s\" at line %d, offset %d:\n"
 "%s"
@@ -447,8 +731,8 @@ msgstr ""
 "%s"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:0
 msgid ""
 "Except the list steps, the user can scroll using the up/down arrow keys."
 msgstr ""
@@ -456,38 +740,49 @@ msgstr ""
 "utilisant les flèches haut/bas."
 
 #. module: stock_scanner
+#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
+#: model_terms:ir.ui.view,arch_db:stock_scanner.wizard_export_scenario
+msgid "Export"
+msgstr "Exporter"
+
+#. module: stock_scanner
+#: model:ir.actions.act_window,name:stock_scanner.action_wizard_export_scenario
+msgid "Export Scenario"
+msgstr "Exporter le scénario"
+
+#. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__from_id
 msgid "From"
 msgstr "De"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:11
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:0
 msgid "Go to Error step"
 msgstr "Aller à l'étape d'erreur"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:0
 msgid "Go to next step"
 msgstr "Aller à la prochaine étape"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_going_back.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_going_back.py:0
 msgid "Going back"
 msgstr "Retour en arrière"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:23
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Green"
 msgstr "Vert"
 
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_search
-msgid "Group By..."
-msgstr "Regrouper par..."
+msgid "Group By"
+msgstr "Regrouper par"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history__hardware_id
@@ -513,11 +808,14 @@ msgstr ""
 "scénario courant."
 
 #. module: stock_scanner
+#: model:ir.model.fields,field_description:stock_scanner.field_ir_model_data__id
+#: model:ir.model.fields,field_description:stock_scanner.field_res_config_settings__id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history__id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__id
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__id
 msgid "ID"
 msgstr "ID"
 
@@ -528,12 +826,11 @@ msgstr "ID du document de référence."
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario__active
-msgid "If check, this object is always available."
-msgstr "Si coché, cet objet est toujours disponible."
+msgid "If checked, this scenario is available."
+msgstr "Si coché, ce scénario est disponible."
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__in_transition_ids
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
 msgid "Incoming transitions"
 msgstr "Transitions entrantes"
@@ -549,25 +846,21 @@ msgid "Info - Text Color"
 msgstr "Info - Couleur du texte"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:0
 msgid "Introduction"
 msgstr "Introduction"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:165
-#, python-format
-msgid "Key"
-msgstr ""
+#: model:ir.model.fields,field_description:stock_scanner.field_res_config_settings__is_login_enabled
+msgid "Is Login Enabled"
+msgstr "Connexion activée"
 
 #. module: stock_scanner
-#: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware____last_update
-#: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history____last_update
-#: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario____last_update
-#: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step____last_update
-#: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition____last_update
-msgid "Last Modified on"
-msgstr "Dernière modification le"
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "Key"
+msgstr "Clé"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__write_uid
@@ -575,6 +868,7 @@ msgstr "Dernière modification le"
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__write_uid
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__write_uid
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__write_uid
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__write_uid
 msgid "Last Updated by"
 msgstr "Dernière modification par"
 
@@ -584,6 +878,7 @@ msgstr "Dernière modification par"
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__write_date
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__write_date
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__write_date
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__write_date
 msgid "Last Updated on"
 msgstr "Dernière modification le"
 
@@ -593,14 +888,14 @@ msgid "Last call"
 msgstr "Dernier appel"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_list_scrolling.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_list_scrolling.py:0
 msgid "List Scrolling"
 msgstr "Défilement de liste"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:0
 msgid "List step"
 msgstr "Étpae liste"
 
@@ -615,15 +910,10 @@ msgid "Login"
 msgstr "Connexion"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_login.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_login.py:0
 msgid "Login ?"
 msgstr "Login ?"
-
-#. module: stock_scanner
-#: model:ir.model.fields,field_description:stock_scanner.field_res_config_settings__is_login_enabled
-msgid "Login/logout scenarii enabled"
-msgstr "Scénarios de connexion/déconnexion activés"
 
 #. module: stock_scanner
 #: model:scanner.scenario,name:stock_scanner.scanner_scenario_logout
@@ -631,14 +921,14 @@ msgid "Logout"
 msgstr "Déconnexion"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_cancelled.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_cancelled.py:0
 msgid "Logout cancelled"
 msgstr "Déconnexion annulée"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_list_scrolling.py:11
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_list_scrolling.py:0
 msgid ""
 "Long texts in a list allows the user to scroll horizontally with left/right "
 "arrow keys"
@@ -647,34 +937,34 @@ msgstr ""
 "les flèches gauche/droite"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:16
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:0
 msgid ""
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nibh lorem, "
-"volutpat sit amet faucibus ut, adipiscing vitae lacus. Vestibulum hendrerit, "
-"sapien a porta posuere, augue ipsum mattis neque, sit amet sagittis felis "
-"lectus ut risus. Sed aliquam felis ut orci adipiscing auctor. Donec "
-"malesuada lorem eu nunc vestibulum elementum. Quisque orci quam, lobortis at "
-"mattis sit amet, gravida semper quam. Curabitur lobortis, eros ut porttitor "
-"rutrum, erat sem tincidunt augue, sed accumsan felis magna at purus. Sed "
-"laoreet consectetur viverra. Aliquam a odio sapien. Suspendisse potenti. "
-"Donec dignissim sagittis lacus, a auctor leo ultricies vel. Pellentesque "
-"eleifend porta nulla elementum faucibus."
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nibh lorem,"
+" volutpat sit amet faucibus ut, adipiscing vitae lacus. Vestibulum "
+"hendrerit, sapien a porta posuere, augue ipsum mattis neque, sit amet "
+"sagittis felis lectus ut risus. Sed aliquam felis ut orci adipiscing auctor."
+" Donec malesuada lorem eu nunc vestibulum elementum. Quisque orci quam, "
+"lobortis at mattis sit amet, gravida semper quam. Curabitur lobortis, eros "
+"ut porttitor rutrum, erat sem tincidunt augue, sed accumsan felis magna at "
+"purus. Sed laoreet consectetur viverra. Aliquam a odio sapien. Suspendisse "
+"potenti. Donec dignissim sagittis lacus, a auctor leo ultricies vel. "
+"Pellentesque eleifend porta nulla elementum faucibus."
 msgstr ""
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nibh lorem, "
-"volutpat sit amet faucibus ut, adipiscing vitae lacus. Vestibulum hendrerit, "
-"sapien a porta posuere, augue ipsum mattis neque, sit amet sagittis felis "
-"lectus ut risus. Sed aliquam felis ut orci adipiscing auctor. Donec "
-"malesuada lorem eu nunc vestibulum elementum. Quisque orci quam, lobortis at "
-"mattis sit amet, gravida semper quam. Curabitur lobortis, eros ut porttitor "
-"rutrum, erat sem tincidunt augue, sed accumsan felis magna at purus. Sed "
-"laoreet consectetur viverra. Aliquam a odio sapien. Suspendisse potenti. "
-"Donec dignissim sagittis lacus, a auctor leo ultricies vel. Pellentesque "
-"eleifend porta nulla elementum faucibus."
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam nibh lorem,"
+" volutpat sit amet faucibus ut, adipiscing vitae lacus. Vestibulum "
+"hendrerit, sapien a porta posuere, augue ipsum mattis neque, sit amet "
+"sagittis felis lectus ut risus. Sed aliquam felis ut orci adipiscing auctor."
+" Donec malesuada lorem eu nunc vestibulum elementum. Quisque orci quam, "
+"lobortis at mattis sit amet, gravida semper quam. Curabitur lobortis, eros "
+"ut porttitor rutrum, erat sem tincidunt augue, sed accumsan felis magna at "
+"purus. Sed laoreet consectetur viverra. Aliquam a odio sapien. Suspendisse "
+"potenti. Donec dignissim sagittis lacus, a auctor leo ultricies vel. "
+"Pellentesque eleifend porta nulla elementum faucibus."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:24
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Magenta"
 msgstr "Mangenta"
 
@@ -700,10 +990,8 @@ msgstr "Modèle"
 
 #. module: stock_scanner
 #: model:ir.model,name:stock_scanner.model_ir_model_data
-#, fuzzy
-#| msgid "Model"
 msgid "Model Data"
-msgstr "Modèle"
+msgstr "Données du modèle"
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario__model_id
@@ -717,11 +1005,6 @@ msgstr "Modèle utilisé par ce scénario."
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__name
 msgid "Name"
 msgstr "Nom"
-
-#. module: stock_scanner
-#: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__name
-msgid "Name of the hardware."
-msgstr "Nom du matériel."
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario_step__name
@@ -739,10 +1022,10 @@ msgid "No back"
 msgstr "Étape retour"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:547
-#, fuzzy, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "No start step found on the scenario"
-msgstr "Société utilisée pour ce scénario."
+msgstr "Aucune étape de départ trouvée sur le scénario"
 
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
@@ -757,7 +1040,6 @@ msgstr "Notes"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__out_transition_ids
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
 msgid "Outgoing transitions"
 msgstr "Transitions sortantes"
@@ -774,14 +1056,14 @@ msgid "Parent scenario, used to create menus."
 msgstr "Scénario parent, utilisé pour créer des menus."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:617
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Please contact"
 msgstr "Merci de contacter"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_pwd.py:13
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_pwd.py:0
 msgid "Pwd ?"
 msgstr "Mdp ?"
 
@@ -796,8 +1078,8 @@ msgid "Python code to execute."
 msgstr "Code python à exécuter."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:25
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Red"
 msgstr "Rouge"
 
@@ -808,10 +1090,9 @@ msgstr "Référence"
 
 #. module: stock_scanner
 #: model:ir.actions.server,name:stock_scanner.hardware_reset_user_id_on_timeout_ir_actions_server
-#: model:ir.cron,cron_name:stock_scanner.hardware_reset_user_id_on_timeout
-#: model:ir.cron,name:stock_scanner.hardware_reset_user_id_on_timeout
 msgid "Remove the current user_id and scenario values on session timeout"
 msgstr ""
+"Supprimer l'utilisateur et le scénario en cours à l'expiration de la session"
 
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_hardware_form
@@ -819,8 +1100,8 @@ msgid "Reset Scenario"
 msgstr "Réinitialiser le scénario"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "Return values of a step"
 msgstr "Valeurs de retour d'une étape"
 
@@ -839,9 +1120,13 @@ msgid "Scanner Hardware"
 msgstr "Matériel"
 
 #. module: stock_scanner
+#: model_terms:ir.ui.view,arch_db:stock_scanner.res_config_settings_view_form
+msgid "Scanner Module"
+msgstr "Module Scanner"
+
+#. module: stock_scanner
 #: model:ir.actions.act_window,name:stock_scanner.act_open_scanner_scenario_view
 #: model:ir.ui.menu,name:stock_scanner.menu_scanner_scenario
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_search
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_tree
 msgid "Scanner Scenario"
@@ -857,21 +1142,15 @@ msgstr "Statut du scanner"
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__step_ids
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_step__scenario_id
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__scenario_id
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__scenario_ids
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_search
 msgid "Scenario"
 msgstr "Scénario"
 
 #. module: stock_scanner
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_diagram
-msgid "Scenario Editor"
-msgstr "Éditeur de scénarios"
-
-#. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
-#, fuzzy
-#| msgid "Scenario Step"
 msgid "Scenario Note"
-msgstr "Étape"
+msgstr "Note du scénario"
 
 #. module: stock_scanner
 #: model:ir.actions.act_window,name:stock_scanner.act_open_scanner_scenario_step_view
@@ -895,10 +1174,10 @@ msgid "Scenario for this step."
 msgstr "Scénario de cette étape."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:559
-#, fuzzy, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Scenario not found"
-msgstr "Éditeur de scénarios"
+msgstr "Scénario introuvable"
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__scenario_id
@@ -926,8 +1205,8 @@ msgid "Screen size"
 msgstr "Taille d'écran"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_scrolling.py:0
 msgid "Scrolling"
 msgstr "Défilement"
 
@@ -960,8 +1239,8 @@ msgstr "Séquence."
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_res_config_settings__session_timeout_delay
-msgid "Session validity in seconds"
-msgstr "Validité de la session, en secondes"
+msgid "Session Timeout Delay"
+msgstr "Délai d'expiration de la session"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history__step_id
@@ -1032,18 +1311,24 @@ msgstr "Historique des étapes de ce matériel"
 #. module: stock_scanner
 #: model:scanner.scenario,name:stock_scanner.scanner_scenario_stock
 msgid "Stock"
-msgstr ""
+msgstr "Stock"
+
+#. module: stock_scanner
+#: model:ir.module.module,shortdesc:base.module_stock_scanner
+msgid "Stock Scanner"
+msgstr "Stock Scanner"
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario__notes
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario_step__scenario_notes
 msgid "Store different notes, date and title for modification, etc..."
-msgstr "Stocke différentes notes, dates et titres pour les modifications, etc."
+msgstr ""
+"Stocke différentes notes, dates et titres pour les modifications, etc."
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario__child_ids
 msgid "Subordinates"
-msgstr ""
+msgstr "Subordonnés"
 
 #. module: stock_scanner
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_hardware_form
@@ -1053,86 +1338,92 @@ msgstr "Valeurs temporaires"
 #. module: stock_scanner
 #: model:scanner.scenario,name:stock_scanner.scanner_scenario_test
 msgid "Test"
-msgstr ""
+msgstr "Test"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:17
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "The 'act' variable must be a single character string."
 msgstr "La variable 'act' doit contenir un seul caractère."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:19
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "The 'res' variable can contain multiple values :"
 msgstr "La variable 'res' peut contenir plusieurs valeurs :"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:24
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_return_values.py:0
 msgid "The 'val' variable can contain multiple values :"
 msgstr "La variable 'val' peut contenir plusieurs valeurs :"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/load_scenario.py:26
-#, python-format
-msgid "The id of a %s cannot be empty!"
-msgstr "L'identifiant d'un %s ne peut être vide !"
+#: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__code
+msgid "The code of this hardware."
+msgstr "Le code de ce matériel."
+
+#. module: stock_scanner
+#: model:ir.model.fields,help:stock_scanner.field_scanner_hardware__name
+msgid "The name of the hardware."
+msgstr "Le nom du matériel."
 
 #. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario_transition__condition
-msgid "The transition is followed only if this condition is evaluated as True."
+msgid ""
+"The transition is followed only if this condition is evaluated as True."
 msgstr ""
 "La transition est suivie uniquement si la condition est évaluée à True."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:0
 msgid "This client is specific to the stock_scanner module."
 msgstr "Ce client est spécifique pour le module stock_scanner."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:389
-#: code:addons/stock_scanner/tests/test_stock_scanner.py:132
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+#: code:addons/stock_scanner/tests/test_stock_scanner.py:0
 msgid "This scenario"
 msgstr "Ce scénario"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:0
 msgid "This scenario will explain all step types."
 msgstr "Ce scénario explique tous les types d'étapes."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Sentinel/scanner_scenario_step_sentinel_introduction.py:0
 msgid ""
 "This scenario will explain some features of the sentinel ncurses client."
 msgstr ""
 "Ce scénario explique quelques fonctionnalités du client ncurses sentinel."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:0
 msgid "This step allows the user to enter custom text."
 msgstr "Cette étape permet à l'utilisateur de saisir du texte."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_quantity_float.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_quantity_float.py:0
 msgid "This step allows the user to send float quantities."
-msgstr "Cette étape permet à l'utilisateur d'envoyer des quantités flottantes."
+msgstr ""
+"Cette étape permet à l'utilisateur d'envoyer des quantités flottantes."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_number_integer.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_number_integer.py:0
 msgid "This step allows the user to send integer numbers."
 msgstr "Cette étape permet à l'utilisateur d'envoyer des nombres entiers."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:0
 msgid ""
 "This step shows an error message, using the error colors defined in the "
 "hardware configuration."
@@ -1141,22 +1432,20 @@ msgstr ""
 "définies dans la configuration du matériel."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_confirm.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_confirm.py:0
 msgid "This step waits for a confirmation from the user."
 msgstr "Cette étape attend une confirmation de l'utilisateur."
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__tmp_values
-#, fuzzy
 msgid "Tmp Values"
-msgstr "Valeur temporaire 1"
+msgstr "Valeurs temporaires"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__tmp_values_display
-#, fuzzy
 msgid "Tmp Values Display"
-msgstr "Valeur temporaire 1"
+msgstr "Affichage des valeurs temporaires"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_scenario_transition__to_id
@@ -1172,7 +1461,6 @@ msgstr "Traceur"
 #: model:ir.actions.act_window,name:stock_scanner.act_open_scanner_scenario_transition_view
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware_step_history__transition_id
 #: model:ir.ui.menu,name:stock_scanner.menu_scanner_scenario_transition
-#: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_step_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_transition_form
 #: model_terms:ir.ui.view,arch_db:stock_scanner.view_scanner_scenario_transition_tree
@@ -1220,6 +1508,11 @@ msgid "Type of transition."
 msgstr "Type de transition."
 
 #. module: stock_scanner
+#: model_terms:ir.ui.view,arch_db:stock_scanner.wizard_export_scenario
+msgid "Use this assistant to export senario."
+msgstr "Utilisez cet assistant pour exporter un scénario."
+
+#. module: stock_scanner
 #: model:ir.model.fields,help:stock_scanner.field_scanner_scenario_transition__tracer
 msgid ""
 "Used to determine fron which transition we arrive to the destination step."
@@ -1233,10 +1526,10 @@ msgid "User"
 msgstr "Utilisateur"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:166
-#, fuzzy, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Value"
-msgstr "ID de la valeur"
+msgstr "Valeur"
 
 #. module: stock_scanner
 #: model:ir.model.fields,field_description:stock_scanner.field_scanner_hardware__warehouse_id
@@ -1260,14 +1553,14 @@ msgid "Warehouses for this scenario."
 msgstr "Entrepôts de ce scénario."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:0
 msgid "Welcome on the stock_scanner module."
 msgstr "Bienvenue dans le module stock_scanner."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:26
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "White"
 msgstr "Blanc"
 
@@ -1277,132 +1570,223 @@ msgid "Width of the terminal's screen."
 msgstr "Largeur de l'écran du terminal."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_error.py:10
-#, python-format
+#: model:ir.model,name:stock_scanner.model_wizard_export_scenario
+msgid "Wizard Export Scenario"
+msgstr "Assistant d'exportation de scénario"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_error.py:0
 msgid "Wrong login/password"
 msgstr "Identifiant/mot de passe erroné"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:27
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "Yellow"
 msgstr "Jaune"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_cancelled.py:11
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_cancelled.py:0
 msgid "You are authenticated as %s !"
 msgstr "Vous êtes authentifié en tant que %s !"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_done.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_done.py:0
 msgid "You are now authenticated as %s !"
 msgstr "Vous êtes maintenant authentifié en tant que %s !"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirmed.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Logout/stock_scanner.scanner_scenario_logout_step_confirmed.py:0
 msgid "You are now logged out"
 msgstr "Vous êtes maintenant déconnecté"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:14
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:0
 msgid "You will also use this step for barcode scanning."
 msgstr "Vous utiliserez aussi cette étape pour scanner des codes barre."
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:619
-#, python-format
+#: model:ir.model.fields,field_description:stock_scanner.field_wizard_export_scenario__zip_file
+msgid "Zip File"
+msgstr "Fichier ZIP"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "administrator"
 msgstr "administrateur"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:389
-#: code:addons/stock_scanner/tests/test_stock_scanner.py:133
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "blue"
+msgstr "bleu"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:0
+msgid "continue"
+msgstr "continuer"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "cyan"
+msgstr "cyan"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_list.py:0
+msgid "error"
+msgstr "erreur"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "green"
+msgstr "vert"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+#: code:addons/stock_scanner/tests/test_stock_scanner.py:0
 msgid "is finished"
 msgstr "est terminé"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/load_scenario.py:95
-#, python-format
-msgid "scenario"
-msgstr "scénario"
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "magenta"
+msgstr "magenta"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/load_scenario.py:151
-#: code:addons/stock_scanner/load_scenario.py:193
-#, python-format
-msgid "step"
-msgstr "étape"
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "red"
+msgstr "rouge"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/load_scenario.py:202
-#, python-format
-msgid "transition"
-msgstr "transition"
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "white"
+msgstr "blanc"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/models/scanner_hardware.py:618
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
+msgid "yellow"
+msgstr "jaune"
+
+#. module: stock_scanner
+#. odoo-python
+#: code:addons/stock_scanner/models/scanner_hardware.py:0
 msgid "your"
 msgstr "votre"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_pwd.py:12
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/data/scenarios/Login/stock_scanner.scanner_scenario_login_step_pwd.py:0
 msgid "| Login %s"
 msgstr "| Login %s"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_confirm.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_confirm.py:0
 msgid "|Confirm step"
 msgstr "|Étape de confirmation"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_error.py:0
 msgid "|Error step"
 msgstr "|Étape d'erreur"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_final.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_final.py:0
 msgid "|Final step"
 msgstr "|Étape finale"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_introduction.py:0
 msgid "|Introduction"
 msgstr "|Introduction"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_message.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_message.py:0
 msgid "|Message step"
 msgstr "|Étape de message"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_number_integer.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_number_integer.py:0
 msgid "|Number (integer) step"
 msgstr "|Étape de nombre (entier)"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_quantity_float.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_quantity_float.py:0
 msgid "|Quantity (float) step"
 msgstr "|Étape de quantité (flottant)"
 
 #. module: stock_scanner
-#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:10
-#, python-format
+#. odoo-python
+#: code:addons/stock_scanner/demo/Tutorial/Step_types/scanner_scenario_step_step_types_text_input.py:0
 msgid "|Text input step"
 msgstr "|Étape de saisie de texte"
+
+#~ msgid "Code of this hardware."
+#~ msgstr "Code pour ce matériel."
+
+#~ msgid "Configure scanner module"
+#~ msgstr "Configuration du module de scanner"
+
+#~ msgid "Enable the login and logout scenarii"
+#~ msgstr "Activer les scénarios de connexion et de déconnexion"
+
+#~ msgid "Group By..."
+#~ msgstr "Regrouper par..."
+
+#~ msgid "If check, this object is always available."
+#~ msgstr "Si coché, cet objet est toujours disponible."
+
+#~ msgid "Last Modified on"
+#~ msgstr "Dernière modification le"
+
+#~ msgid "Login/logout scenarii enabled"
+#~ msgstr "Scénarios de connexion/déconnexion activés"
+
+#~ msgid "Name of the hardware."
+#~ msgstr "Nom du matériel."
+
+#~ msgid "Scenario Editor"
+#~ msgstr "Éditeur de scénarios"
+
+#~ msgid "Session validity in seconds"
+#~ msgstr "Validité de la session, en secondes"
+
+#, python-format
+#~ msgid "The id of a %s cannot be empty!"
+#~ msgstr "L'identifiant d'un %s ne peut être vide !"
+
+#, python-format
+#~ msgid "scenario"
+#~ msgstr "scénario"
+
+#, python-format
+#~ msgid "step"
+#~ msgstr "étape"
+
+#, python-format
+#~ msgid "transition"
+#~ msgstr "transition"
 
 #~ msgid "A001"
 #~ msgstr "A001"
@@ -1411,8 +1795,8 @@ msgstr "|Étape de saisie de texte"
 #~ "Allows to share the custom values with a shared scanner in the same "
 #~ "warehouse."
 #~ msgstr ""
-#~ "Permet de partager les valeurs personnalisées avec un autre scanner dans "
-#~ "le même entrepôt."
+#~ "Permet de partager les valeurs personnalisées avec un autre scanner dans le "
+#~ "même entrepôt."
 
 #~ msgid ""
 #~ "An error occured\n"
